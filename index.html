@@ -121,33 +121,37 @@
     <p class="about-text reveal">
       I'm a Software Engineering student at Washington State University and a software
       engineering intern at Schweitzer Engineering Laboratories, where I build Python
-      libraries and extensions for RTAC and write controller logic in Structured Text.
+      libraries and extensions for the RTAC platform.
     </p>
     <p class="about-text reveal">
       My focus is backend systems and developer tooling: APIs whose contracts are tested
       before they ship, static analysis engines that find flaws before production does,
       and performance data you can watch while it happens. I care about the unglamorous
-      parts of software -- the tests, the gates, the measurements -- because that's what
+      parts of software: the tests, the gates, the measurements. That's what
       separates code that works from code that's proven to work.
     </p>
 
     <div class="internships-grid">
       <div class="glow-card about-card reveal">
-        <div class="about-card-label">Internship · Mar 2026 – Present</div>
-        <div class="about-card-title">Software Engineering Intern — Schweitzer Engineering Laboratories</div>
+        <div class="about-card-label">Internship · Mar 2026 - Present</div>
+        <div class="about-card-title">Software Engineering Intern</div>
+        <div class="about-card-meta">Schweitzer Engineering Laboratories · Pullman, WA</div>
         <p class="about-card-body">
           Building Python libraries and extensions for the RTAC platform that ship to
-          production and are used by SEL clients, and writing controller logic in
-          Structured Text.
+          production and are used by many SEL clients, including reusable utilities,
+          schema-aware upgrades with tests, and a context manager that made library
+          load and save up to 15x faster.
         </p>
       </div>
       <div class="glow-card about-card reveal">
-        <div class="about-card-label">Internship · May – Dec 2025</div>
-        <div class="about-card-title">Software Validation Engineer Intern — Alturas Analytics</div>
+        <div class="about-card-label">Internship · May - Dec 2025</div>
+        <div class="about-card-title">Software Validation Engineer Intern</div>
+        <div class="about-card-meta">Alturas Analytics · Moscow, ID</div>
         <p class="about-card-body">
           Took technical ownership of validating two regulated laboratory systems backed
-          by SQL Server: T-SQL checks on data integrity and audit logs, plus automated
-          OQ/UAT test scripts built to 21 CFR Part 11 and GDPR.
+          by SQL Server, in environments with minimal existing documentation: T-SQL
+          checks on data integrity and audit trails, plus automated OQ/UAT test suites
+          in pytest, pyodbc, and pandas built to 21 CFR Part 11 and GDPR.
         </p>
       </div>
     </div>
@@ -233,7 +237,7 @@
     </div>
 
     <p class="projects-intro reveal">
-      These are my own projects, built end to end -- and so is this site, which runs on
+      These are my own projects, built end to end, and so is this site, which runs on
       the same Python backend that powers its live demos. Every demo below runs the
       actual code from the repository behind it.
     </p>
@@ -380,10 +384,11 @@
           </div>
           <div class="project-visual-body">
             <span class="scan-line" data-finding="SQLi · CRIT">db.execute(f"SELECT * FROM u WHERE id={uid}")</span>
+            <span class="scan-line">row = conn.execute(query, params).fetchone()</span>
             <span class="scan-line" data-finding="XSS · HIGH">html = "&lt;div&gt;" + raw_input</span>
+            <span class="scan-line">session = requests.Session()</span>
             <span class="scan-line" data-finding="SECRET · MED">api_key = "sk_live_9f8a7b6c"</span>
-            <span class="scan-line" data-finding="">session = requests.Session()</span>
-            <span class="scan-line" data-finding="OK">cursor.close()</span>
+            <span class="scan-line">cursor.close()</span>
             <div class="scan-progress"><div class="scan-progress-fill"></div></div>
           </div>
         </div>
@@ -440,10 +445,6 @@
             </p>
           </div>
           <div>
-            <div class="project-metric">
-              <span class="metric-num" data-metric="rag">-</span>
-              <span class="metric-label">cited sources back the live answer</span>
-            </div>
             <div class="chip-row">
               <span class="chip">Python</span><span class="chip">FastAPI</span><span class="chip">RAG</span><span class="chip">Embeddings</span><span class="chip">Ollama</span>
             </div>

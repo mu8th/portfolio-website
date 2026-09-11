@@ -620,6 +620,11 @@ section { padding: 5rem 0; position: relative; overflow: hidden; }
   content: attr(data-finding);
   color: var(--red); margin-left: 0.5rem; font-size: 0.62rem;
 }
+.scan-line.passed { border-left-color: var(--green); background: rgba(34, 197, 94, 0.06); }
+.scan-line.passed::after {
+  content: "safe";
+  color: var(--green); margin-left: 0.5rem; font-size: 0.62rem;
+}
 .scan-progress {
   height: 3px; background: rgba(255, 255, 255, 0.06);
   border-radius: 99px; overflow: hidden; margin-top: 0.75rem;
