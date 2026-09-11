@@ -43,7 +43,6 @@
 <nav class="nav" aria-label="Main navigation">
   <a href="#hero">Home</a>
   <a href="#about">About</a>
-  <a href="#process">Process</a>
   <a href="#skills">Skills</a>
   <a href="#projects">Work</a>
   <a href="#contact">Contact</a>
@@ -76,8 +75,6 @@
           <span class="ticker-item"><span class="ticker-label">repos</span><span class="ticker-val" data-ticker="repos">…</span></span>
           <span class="ticker-sep"></span>
           <span class="ticker-item"><span class="ticker-label">loc</span><span class="ticker-val" data-ticker="loc">…</span></span>
-          <span class="ticker-sep"></span>
-          <span class="ticker-item"><span class="ticker-label">commits</span><span class="ticker-val" data-ticker="commits">…</span></span>
           <span class="ticker-sep"></span>
           <span class="ticker-item"><span class="ticker-label">vulns</span><span class="ticker-val" data-ticker="vulns">…</span></span>
           <span class="ticker-sep"></span>
@@ -120,117 +117,58 @@
       </div>
     </div>
 
-    <div class="stats-row reveal">
-      <div class="glow-card stat">
-        <div><span class="stat-num" data-count="2">0</span></div>
-        <div class="stat-label">Industry internships</div>
-      </div>
-      <div class="glow-card stat">
-        <div><span class="stat-num" data-count="104" data-stat="automated_tests">0</span></div>
-        <div class="stat-label">Automated tests</div>
-      </div>
-      <div class="glow-card stat">
-        <div><span class="stat-num" data-count="5204" data-stat="lines_of_code">0</span></div>
-        <div class="stat-label">Lines of code</div>
-      </div>
-      <div class="glow-card stat">
-        <div><span class="stat-num" data-count="5">0</span><span class="stat-suffix">/5</span></div>
-        <div class="stat-label">CI pipelines green</div>
-      </div>
-    </div>
-
     <h3 class="about-lead reveal">Engineering reliable systems<span> with measurable proof.</span></h3>
     <p class="about-text reveal">
-      I'm a Software Engineering student at Washington State University, interning as a
-      software engineer at Schweitzer Engineering Laboratories, where I build Python
-      libraries and extensions for RTAC and write controller logic in Structured Text. Before
-      that I interned at Alturas Analytics, writing automated validation suites for
-      regulated software under 21 CFR Part 11 and GDPR.
+      I'm a Software Engineering student at Washington State University and a software
+      engineering intern at Schweitzer Engineering Laboratories, where I build Python
+      libraries and extensions for RTAC and write controller logic in Structured Text.
     </p>
     <p class="about-text reveal">
-      The projects on this page are my own, built end to end: a contract-testing engine
-      that scores API drift, a static analysis scanner for injection flaws, and live
-      profiling dashboards. Every demo runs the actual code from the repository behind it.
+      My focus is backend systems and developer tooling: APIs whose contracts are tested
+      before they ship, static analysis engines that find flaws before production does,
+      and performance data you can watch while it happens. I care about the unglamorous
+      parts of software -- the tests, the gates, the measurements -- because that's what
+      separates code that works from code that's proven to work.
     </p>
 
-    <div class="about-cards">
+    <div class="internships-grid">
       <div class="glow-card about-card reveal">
-        <div class="about-card-label">Education</div>
-        <div class="about-card-title">B.S. Software Engineering, Washington State University</div>
-        <div class="about-card-meta">Minor in Mathematics · expected 12/2026</div>
-        <div class="chip-row">
-          <span class="chip">Python</span>
-          <span class="chip">C#</span>
-          <span class="chip">C / C++</span>
-          <span class="chip">SQL &amp; T-SQL</span>
-          <span class="chip">Docker</span>
-          <span class="chip">Git</span>
-        </div>
+        <div class="about-card-label">Internship · Mar 2026 – Present</div>
+        <div class="about-card-title">Software Engineering Intern — Schweitzer Engineering Laboratories</div>
+        <p class="about-card-body">
+          Building Python libraries and extensions for the RTAC platform that ship to
+          production and are used by SEL clients, and writing controller logic in
+          Structured Text.
+        </p>
       </div>
       <div class="glow-card about-card reveal">
-        <div class="about-card-label">Currently learning</div>
-        <div class="about-card-title">Next on the roadmap</div>
-        <div class="about-card-meta">Deepening the tooling stack</div>
-        <div class="chip-row">
-          <span class="chip">Rust for systems tooling</span>
-          <span class="chip">Kubernetes &amp; Helm</span>
-          <span class="chip">gRPC &amp; Protobuf</span>
-          <span class="chip">AST analysis with tree-sitter</span>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ══════════ PROCESS ══════════ -->
-<section id="process">
-  <div class="section-bleed" style="left:0;right:auto;"></div>
-  <div class="container">
-    <div class="section-head reveal">
-      <span class="ghost-num">02</span>
-      <div class="head-border">
-        <h2 class="section-title" data-text="Process">Process</h2>
-        <p class="section-sub">[ how the work gets done ]</p>
+        <div class="about-card-label">Internship · May – Dec 2025</div>
+        <div class="about-card-title">Software Validation Engineer Intern — Alturas Analytics</div>
+        <p class="about-card-body">
+          Took technical ownership of validating two regulated laboratory systems backed
+          by SQL Server: T-SQL checks on data integrity and audit logs, plus automated
+          OQ/UAT test scripts built to 21 CFR Part 11 and GDPR.
+        </p>
       </div>
     </div>
 
-    <div class="process-grid">
-      <div class="glow-card process-card reveal">
-        <div class="process-step">STEP 01</div>
-        <div class="process-title">Write the contract first</div>
-        <p class="process-desc">
-          An API's spec is the source of truth. OpenAPI contracts are defined before
-          implementation, and every change is scored against them by the contract
-          tester below: breaking changes fail loudly instead of surfacing in production.
-        </p>
+    <div class="glow-card about-card reveal">
+      <div class="about-card-label">Education</div>
+      <div class="about-card-title">B.S. Software Engineering, Washington State University</div>
+      <div class="about-card-meta">Minor in Mathematics · expected 12/2026</div>
+      <div class="chip-row">
+        <span class="chip">Python</span>
+        <span class="chip">C#</span>
+        <span class="chip">C / C++</span>
+        <span class="chip">SQL &amp; T-SQL</span>
+        <span class="chip">Docker</span>
+        <span class="chip">Git</span>
       </div>
-      <div class="glow-card process-card reveal">
-        <div class="process-step">STEP 02</div>
-        <div class="process-title">Test until it's boring</div>
-        <p class="process-desc">
-          pytest suites run on every commit behind GitHub Actions gates, with ruff and
-          mypy in the loop. The tests encode the contract from step one, so a green
-          build is a statement about behavior, not just about code that runs.
-        </p>
-      </div>
-      <div class="glow-card process-card reveal">
-        <div class="process-step">STEP 03</div>
-        <div class="process-title">Measure before you optimize</div>
-        <p class="process-desc">
-          The profiler attaches to real workloads and streams CPU, wall-clock, and
-          memory per call. Flame graphs show where time actually goes first, so
-          optimization targets evidence instead of guesses.
-        </p>
-      </div>
-      <div class="glow-card process-card reveal">
-        <div class="process-step">STEP 04</div>
-        <div class="process-title">Harden what ships</div>
-        <p class="process-desc">
-          Every release passes the vulnerability scanner for injection flaws and
-          hardcoded secrets. Findings are tracked over time, so security regressions
-          get caught in CI instead of by users.
-        </p>
-      </div>
+    </div>
+
+    <div class="roadmap-strip reveal">
+      <span class="roadmap-label">currently learning</span>
+      <span class="roadmap-items">Rust for systems-level tooling · Kubernetes &amp; Helm · gRPC &amp; Protobuf · AST analysis with tree-sitter</span>
     </div>
   </div>
 </section>
@@ -240,7 +178,7 @@
   <div class="section-bleed"></div>
   <div class="container">
     <div class="section-head reveal">
-      <span class="ghost-num">03</span>
+      <span class="ghost-num">02</span>
       <div class="head-border">
         <h2 class="section-title" data-text="Skills">Skills</h2>
         <p class="section-sub">[ technical proficiency ]</p>
@@ -287,10 +225,56 @@
   <div class="section-bleed"></div>
   <div class="container">
     <div class="section-head reveal">
-      <span class="ghost-num">04</span>
+      <span class="ghost-num">03</span>
       <div class="head-border">
         <h2 class="section-title" data-text="Projects">Projects</h2>
         <p class="section-sub">[ built, tested &amp; running live ]</p>
+      </div>
+    </div>
+
+    <p class="projects-intro reveal">
+      These are my own projects, built end to end -- and so is this site, which runs on
+      the same Python backend that powers its live demos. Every demo below runs the
+      actual code from the repository behind it.
+    </p>
+
+    <div class="process-label reveal"><span class="process-step">[ how they get built ]</span></div>
+    <div class="process-grid">
+      <div class="glow-card process-card reveal">
+        <div class="process-step">STEP 01</div>
+        <div class="process-title">Write the contract first</div>
+        <p class="process-desc">
+          An API's spec is the source of truth. OpenAPI contracts are defined before
+          implementation, and every change is scored against them: breaking changes
+          fail loudly instead of surfacing in production.
+        </p>
+      </div>
+      <div class="glow-card process-card reveal">
+        <div class="process-step">STEP 02</div>
+        <div class="process-title">Test until it's boring</div>
+        <p class="process-desc">
+          pytest suites run on every commit behind GitHub Actions gates, with ruff and
+          mypy in the loop. The tests encode the contract from step one, so a green
+          build is a statement about behavior, not just about code that runs.
+        </p>
+      </div>
+      <div class="glow-card process-card reveal">
+        <div class="process-step">STEP 03</div>
+        <div class="process-title">Measure before you optimize</div>
+        <p class="process-desc">
+          The profiler attaches to real workloads and streams CPU, wall-clock, and
+          memory per call. Flame graphs show where time actually goes first, so
+          optimization targets evidence instead of guesses.
+        </p>
+      </div>
+      <div class="glow-card process-card reveal">
+        <div class="process-step">STEP 04</div>
+        <div class="process-title">Harden what ships</div>
+        <p class="process-desc">
+          Every release passes the vulnerability scanner for injection flaws and
+          hardcoded secrets. Findings are tracked over time, so security regressions
+          get caught in CI instead of by users.
+        </p>
       </div>
     </div>
 
@@ -477,7 +461,7 @@
   <div class="section-bleed"></div>
   <div class="container">
     <div class="section-head reveal">
-      <span class="ghost-num">05</span>
+      <span class="ghost-num">04</span>
       <div class="head-border">
         <h2 class="section-title" data-text="Contact">Contact</h2>
         <p class="section-sub">[ get in touch ]</p>
@@ -489,7 +473,7 @@
         <h3 class="contact-lead">Let's talk about what you're <span>building.</span></h3>
         <p class="about-text">
           A question about one of these projects, an idea worth pressure-testing, or
-          just to trade notes on backend tooling: my inbox is open.
+          just to trade notes on backend tooling: my inbox is always open!
         </p>
         <div class="contact-links">
           <a class="contact-link-row" href="mailto:muath.reed@gmail.com">

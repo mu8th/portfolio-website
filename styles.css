@@ -389,19 +389,6 @@ section { padding: 5rem 0; position: relative; overflow: hidden; }
 }
 
 /* ── About ──────────────────────────────────────────────────────────────── */
-.stats-row {
-  display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;
-  margin-bottom: 2rem;
-}
-@media (min-width: 768px) { .stats-row { grid-template-columns: repeat(4, 1fr); } }
-.stat { text-align: left; padding: 1.25rem; overflow: hidden; }
-.stat-num {
-  font-size: 2.25rem; font-weight: 900; letter-spacing: -0.03em;
-  color: var(--primary); line-height: 1.1;
-}
-.stat-suffix { font-size: 1.25rem; font-weight: 700; color: var(--primary); }
-.stat-label { font-size: 0.75rem; color: var(--muted); margin-top: 0.25rem; text-transform: uppercase; letter-spacing: 0.08em; }
-
 .about-lead {
   font-size: clamp(1.25rem, 3vw, 1.75rem);
   font-weight: 800; letter-spacing: -0.02em;
@@ -435,6 +422,23 @@ section { padding: 5rem 0; position: relative; overflow: hidden; }
 }
 .about-card-title { font-weight: 700; font-size: 1.05rem; margin-bottom: 0.25rem; }
 .about-card-meta { color: var(--muted-dim); font-size: 0.85rem; }
+.about-card-body { color: var(--muted); font-size: 0.88rem; margin-top: 0.75rem; }
+
+.internships-grid { display: grid; gap: 1rem; margin-top: 2.5rem; }
+@media (min-width: 768px) { .internships-grid { grid-template-columns: 1fr 1fr; } }
+.internships-grid ~ .about-card { margin-top: 1rem; }
+
+.roadmap-strip {
+  display: flex; align-items: baseline; gap: 1rem; flex-wrap: wrap;
+  margin-top: 2rem; padding-top: 1.25rem;
+  border-top: 1px solid var(--border);
+}
+.roadmap-label {
+  font-family: var(--font-mono); font-size: 0.7rem;
+  text-transform: uppercase; letter-spacing: 0.2em;
+  color: var(--secondary); white-space: nowrap;
+}
+.roadmap-items { font-family: var(--font-mono); font-size: 0.8rem; color: var(--muted); }
 
 .chip-row { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; }
 .chip {
@@ -447,8 +451,10 @@ section { padding: 5rem 0; position: relative; overflow: hidden; }
 }
 .chip:hover { border-color: var(--primary); color: #fff; }
 
-/* ── Process strip ──────────────────────────────────────────────────────── */
-.process-grid { display: grid; gap: 1rem; }
+/* ── Projects intro + process strip (lives inside the Projects section) ─── */
+.projects-intro { color: var(--muted); max-width: 52rem; font-size: 0.95rem; margin-bottom: 2.5rem; }
+.process-label { margin-bottom: 1rem; }
+.process-grid { display: grid; gap: 1rem; margin-bottom: 3rem; }
 @media (min-width: 768px) { .process-grid { grid-template-columns: repeat(4, 1fr); } }
 .process-card { padding: 1.5rem; position: relative; }
 .process-step {
