@@ -176,21 +176,21 @@ async def ws_profile(websocket: WebSocket) -> None:
 
 
 class _PublicStaticFiles(StaticFiles):
-    """StaticFiles that never serves repo metadata or backend sources.
+    """StaticFiles that serves only the public site assets.
 
     The mount root is the whole portfolio-website checkout, which also contains
-    ``.git``, ``.github`` and this backend package. Those are not part of the
-    public site, so any request whose first path segment names one of them is
-    answered with 404 instead of leaking the file.
+    ``.git``, ``.github``, the backend package and deploy tooling. None of that
+    is part of the public site, so anything whose first path segment is not an
+    approved web asset is answered with 404 instead of leaking the file.
     """
 
-    BLOCKED_SEGMENTS = frozenset({".git", ".github", "backend"})
+    ALLOWED_SEGMENTS = frozenset({"index.html", "script.js", "styles.css", "assets"})
 
     async def get_response(self, path: str, scope) -> PlainTextResponse:
         # Starlette normalizes with os.path.normpath, so on Windows the
         # separator is a backslash. Split on both to be platform-proof.
         segments = [seg for seg in re.split(r"[/\\]+", path) if seg]
-        if segments and segments[0] in self.BLOCKED_SEGMENTS:
+        if segments and segments[0] not in self.ALLOWED_SEGMENTS:
             return PlainTextResponse("Not Found", status_code=404)
         return await super().get_response(path, scope)
 
