@@ -1,0 +1,9 @@
+# Portfolio demo backend dependencies.
+fastapi>=0.110
+uvicorn[standard]>=0.29
+PyYAML>=6.0
+# (jsonschema / sqlalchemy / websockets ship with the sibling projects' engines
+# and are exercised at runtime, not imported by this package directly.)
+
+# Testing
+pytest>=8.0

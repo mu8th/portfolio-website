@@ -1,0 +1,57 @@
+openapi: 3.0.0
+info:
+  title: Orders API
+  version: 1.3.0
+paths:
+  /orders:
+    get:
+      summary: List orders
+      responses:
+        "200":
+          description: OK
+    post:
+      summary: Create order
+      responses:
+        "201":
+          description: Created
+  /orders/{order_id}:
+    get:
+      summary: Get order
+      responses:
+        "200":
+          description: OK
+  /orders/{order_id}/refunds:
+    post:
+      summary: Refund order (new)
+      responses:
+        "201":
+          description: Created
+components:
+  schemas:
+    Order:
+      type: object
+      required: [id, total, status, payment_method, currency]
+      properties:
+        id:
+          type: string
+          format: uuid
+        total:
+          type: integer
+        status:
+          type: string
+          enum: [pending, paid, shipped, cancelled]
+        currency:
+          type: string
+        payment_method:
+          type: string
+          enum: [card, bank, wallet]
+    Address:
+      type: object
+      required: [street, city, zip]
+      properties:
+        street:
+          type: string
+        city:
+          type: string
+        zip:
+          type: string

@@ -1,0 +1,59 @@
+openapi: 3.0.0
+info:
+  title: Orders API
+  version: 1.2.0
+paths:
+  /orders:
+    get:
+      summary: List orders
+      responses:
+        "200":
+          description: OK
+    post:
+      summary: Create order
+      responses:
+        "201":
+          description: Created
+  /orders/{order_id}:
+    get:
+      summary: Get order
+      responses:
+        "200":
+          description: OK
+    delete:
+      summary: Cancel order
+      responses:
+        "204":
+          description: Deleted
+components:
+  schemas:
+    Order:
+      type: object
+      required: [id, email, total, status]
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        total:
+          type: number
+          format: double
+        status:
+          type: string
+          enum: [pending, paid, shipped, cancelled]
+        currency:
+          type: string
+        coupon_code:
+          type: string
+    Address:
+      type: object
+      required: [street, city, zip]
+      properties:
+        street:
+          type: string
+        city:
+          type: string
+        zip:
+          type: string
