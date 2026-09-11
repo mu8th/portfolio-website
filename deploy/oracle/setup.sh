@@ -133,7 +133,11 @@ CADDY
 
 echo "==> Starting services"
 systemctl daemon-reload
-systemctl enable --now caddy portfolio coderag
+systemctl enable caddy portfolio coderag
+systemctl start portfolio coderag
+# apt's postinst may have already started caddy with the distro default config;
+# restart so our Caddyfile is guaranteed to be loaded.
+systemctl restart caddy
 
 sleep 3
 echo ""
@@ -143,8 +147,17 @@ for s in caddy portfolio coderag; do
 done
 
 echo ""
-echo "==> Smoke test through Caddy"
-curl -fsS http://127.0.0.1/api/health && echo "" || echo "WARNING: /api/health failed, check 'journalctl -u portfolio'"
+echo "==> Smoke test through Caddy (uvicorn needs a few seconds to boot)"
+ok=0
+for _ in $(seq 1 15); do
+  if curl -fsS http://127.0.0.1/api/health >/dev/null 2>&1; then ok=1; break; fi
+  sleep 2
+done
+if [ "$ok" = 1 ]; then
+  curl -fsS http://127.0.0.1/api/health && echo ""
+else
+  echo "WARNING: /api/health failed, check 'journalctl -u portfolio' and 'journalctl -u caddy'"
+fi
 
 PUBLIC_IP="$(curl -fsS --max-time 5 https://api.ipify.org 2>/dev/null || true)"
 echo ""
