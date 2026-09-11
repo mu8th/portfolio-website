@@ -188,8 +188,9 @@ class _PublicStaticFiles(StaticFiles):
 
     async def get_response(self, path: str, scope) -> PlainTextResponse:
         # Starlette normalizes with os.path.normpath, so on Windows the
-        # separator is a backslash. Split on both to be platform-proof.
-        segments = [seg for seg in re.split(r"[/\\]+", path) if seg]
+        # separator is a backslash and the root path arrives as ".". Split on
+        # both separators and drop "." / ".." to be platform-proof.
+        segments = [seg for seg in re.split(r"[/\\]+", path) if seg not in (".", "..")]
         if segments and segments[0] not in self.ALLOWED_SEGMENTS:
             return PlainTextResponse("Not Found", status_code=404)
         return await super().get_response(path, scope)
