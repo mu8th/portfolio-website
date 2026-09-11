@@ -361,8 +361,8 @@
 
   /* ── Live system-status ticker (real backend metrics) ───────────────────
      One cheap call to /api/summary fills the hero status strip with honest,
-     live numbers (repos, LOC, commits, vulns, CI). Falls back to the baked-in
-     About values if the backend is offline, so the strip is never empty.     */
+     live numbers (repos, LOC, vulns, CI). Falls back to baked-in values if
+     the backend is offline, so the strip is never empty.     */
   (function initTicker() {
     var ticker = document.getElementById('hero-ticker');
     if (!ticker) return;
@@ -379,7 +379,6 @@
     set('status', 'operational');
     set('repos', '4');
     set('loc', '5,204');
-    set('commits', '26');
     set('vulns', '5');
     set('ci', 'green');
 
@@ -389,7 +388,6 @@
         set('status', d.status || 'operational');
         set('repos', String(d.projects_shipped != null ? d.projects_shipped : '4'));
         set('loc', (d.lines_of_code != null ? d.lines_of_code : 0).toLocaleString('en-US'));
-        set('commits', String(d.commits_pushed != null ? d.commits_pushed : '20'));
         set('vulns', String(d.vulns_detected != null ? d.vulns_detected : '5'));
         set('ci', d.ci || 'green');
       })
@@ -438,44 +436,6 @@
         }
       });
     }, { threshold: 0.12 });
-    els.forEach(function (el) { io.observe(el); });
-  })();
-
-  /* ── Count-up stats ──────────────────────────────────────────────────── */
-  (function initCounters() {
-    var els = document.querySelectorAll('.stat-num[data-count]');
-    if (!els.length) return;
-
-    // Read the *current* data-count on demand so live stats (which rewrite it
-    // from /api/stats) are honoured whether they land before or after the
-    // counter first animates.
-    function readTarget(el) {
-      return parseInt(el.getAttribute('data-count'), 10) || 0;
-    }
-
-    function animate(el) {
-      var target = readTarget(el);
-      if (reducedMotion) { el.textContent = target; return; }
-      var dur = 1400, start = performance.now();
-      function tick(now) {
-        var p = Math.min((now - start) / dur, 1);
-        el.textContent = Math.round(target * (1 - Math.pow(1 - p, 3)));
-        if (p < 1) requestAnimationFrame(tick);
-      }
-      requestAnimationFrame(tick);
-    }
-
-    if (!('IntersectionObserver' in window)) {
-      els.forEach(animate); return;
-    }
-    var io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (entry) {
-        if (entry.isIntersecting) {
-          animate(entry.target);
-          io.unobserve(entry.target);
-        }
-      });
-    }, { threshold: 0.5 });
     els.forEach(function (el) { io.observe(el); });
   })();
 
@@ -621,10 +581,14 @@
           }, 3600);
           return;
         }
-        lines[i].classList.add('scanning');
+        var line = lines[i];
+        line.classList.add('scanning');
         if (fill) fill.style.width = Math.round(((i + 1) / lines.length) * 100) + '%';
-        var hit = lines[i].getAttribute('data-finding');
-        if (hit) setTimeout(function () { lines[i].classList.add('hit'); }, 420);
+        // Capture the element, not the index: i is incremented before this
+        // fires, and on the last line it has already wrapped to lines.length.
+        if (line.getAttribute('data-finding')) {
+          setTimeout(function () { line.classList.add('hit'); }, 420);
+        }
         i++;
         setTimeout(next, 520);
       }
@@ -1054,34 +1018,6 @@
         loadDemo(kind, card);
       }
     });
-  })();
-
-  /* ── Live About stats (real repo counts from the backend) ─────────────── */
-  (function initLiveStats() {
-    var els = document.querySelectorAll('.stat-num[data-stat]');
-    if (!els.length) return;
-    var API = (location.protocol === 'https:' || location.port === '8085')
-      ? ''
-      : (location.hostname === 'localhost' ? 'http://localhost:8085'
-          : 'http://' + location.hostname + ':8085');
-
-    // Rewrite the counters' data-count from the live backend values. The
-    // count-up in initCounters reads data-count on demand, so it animates to
-    // the live number whether the fetch lands before or after the counter's
-    // IntersectionObserver fires. If the counter already ran, set the value
-    // directly so it can't be stuck showing a stale number.
-    fetch(API + '/api/stats', { cache: 'no-store' })
-      .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
-      .then(function (d) {
-        els.forEach(function (el) {
-          var key = el.getAttribute('data-stat');
-          if (d[key] == null) return;
-          var target = parseInt(d[key], 10);
-          el.setAttribute('data-count', target);
-          if (parseInt(el.textContent, 10) > 0) el.textContent = target;
-        });
-      })
-      .catch(function () { /* keep static data-count values as fallback */ });
   })();
 
   /* ── Contact form: validation + mailto fallback ──────────────────────── */
