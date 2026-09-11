@@ -366,7 +366,10 @@
   (function initTicker() {
     var ticker = document.getElementById('hero-ticker');
     if (!ticker) return;
-    var API = (location.protocol === 'https:' || location.port === '8085')
+    // Same-origin under a reverse proxy (default-port HTTP/HTTPS); cross-origin
+    // to the backend only when the static site is served on another port.
+    var API = (location.protocol === 'https:' || location.port === '8085'
+               || location.port === '' || location.port === '80')
       ? ''
       : (location.hostname === 'localhost' ? 'http://localhost:8085'
           : 'http://' + location.hostname + ':8085');
