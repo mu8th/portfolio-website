@@ -19,9 +19,11 @@ the endpoint returns an error payload the frontend understands, rather than
 from __future__ import annotations
 
 import logging
+import re
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 
 from . import config
@@ -173,10 +175,30 @@ async def ws_profile(websocket: WebSocket) -> None:
         return
 
 
+class _PublicStaticFiles(StaticFiles):
+    """StaticFiles that never serves repo metadata or backend sources.
+
+    The mount root is the whole portfolio-website checkout, which also contains
+    ``.git``, ``.github`` and this backend package. Those are not part of the
+    public site, so any request whose first path segment names one of them is
+    answered with 404 instead of leaking the file.
+    """
+
+    BLOCKED_SEGMENTS = frozenset({".git", ".github", "backend"})
+
+    async def get_response(self, path: str, scope) -> PlainTextResponse:
+        # Starlette normalizes with os.path.normpath, so on Windows the
+        # separator is a backslash. Split on both to be platform-proof.
+        segments = [seg for seg in re.split(r"[/\\]+", path) if seg]
+        if segments and segments[0] in self.BLOCKED_SEGMENTS:
+            return PlainTextResponse("Not Found", status_code=404)
+        return await super().get_response(path, scope)
+
+
 # Serve the static site from the same process so a single port can host both the
 # page and its API when running this backend directly (optional; the site is
 # usually served separately on 8080).
-app.mount("/", StaticFiles(directory=str(config.SITE_DIR), html=True), name="site")
+app.mount("/", _PublicStaticFiles(directory=str(config.SITE_DIR), html=True), name="site")
 
 
 if __name__ == "__main__":

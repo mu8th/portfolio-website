@@ -341,9 +341,9 @@
     var GLYPHS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789<>/{}[]#*+=~';
     var frame = 0;
     var total = finalText.length;
-    var STEP_MS = 34; // ~30fps, a touch slower than rAF for a deliberate decode
+    var STEP_MS = 24; // snappier decode: one character settles per tick
     function tick() {
-      var revealed = Math.floor(frame / 2);
+      var revealed = frame;
       var out = '';
       for (var i = 0; i < total; i++) {
         if (i < revealed) out += finalText.charAt(i);
