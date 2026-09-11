@@ -30,13 +30,31 @@ UV="$(command -v uv || echo /root/.local/bin/uv)"
 
 echo "==> Installing Caddy (reverse proxy + TLS)"
 if ! command -v caddy >/dev/null 2>&1; then
-  install -m 0755 -d /etc/apt/keyrings
-  curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' \
-    | gpg --dearmor -o /etc/apt/keyrings/caddy.gpg
-  echo "deb [signed-by=/etc/apt/keyrings/caddy.gpg] https://dl.cloudsmith.io/public/caddy/stable/deb.deb82 $(. /etc/os-release && echo "$VERSION_CODENAME") main" \
-    > /etc/apt/sources.list.d/caddy-stable.list
-  apt-get update -qq
-  apt-get install -y -qq caddy >/dev/null
+  if apt-get install -y -qq caddy >/dev/null 2>&1; then
+    echo "    installed from Ubuntu repositories"
+  else
+    # Fallback: official static binary (any release, any arch)
+    ARCH="$(dpkg --print-architecture)"
+    curl -fsSL "https://caddyserver.com/api/download?os=linux&arch=${ARCH}" -o /usr/local/bin/caddy
+    chmod 0755 /usr/local/bin/caddy
+    install -m 0755 -d /etc/caddy
+    cat > /etc/systemd/system/caddy.service <<'CADDYUNIT'
+[Unit]
+Description=Caddy Web Server
+After=network.target network-online.target
+Wants=network-online.target
+
+[Service]
+User=root
+ExecStart=/usr/local/bin/caddy run --environ --config /etc/caddy/Caddyfile
+Restart=on-failure
+LimitNOFILE=1048576
+
+[Install]
+WantedBy=multi-user.target
+CADDYUNIT
+    echo "    installed official binary (apt package unavailable)"
+  fi
 fi
 
 echo "==> Cloning repositories (must be public)"
