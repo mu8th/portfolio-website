@@ -621,9 +621,12 @@
     var cards = document.querySelectorAll('.project-visual[data-demo]');
     if (!cards.length) return;
 
-    // Same-origin by default; cross-origin to the backend when the static site
-    // is served separately (e.g. http.server on 8080).
-    var API = (location.protocol === 'https:' || location.port === '8085')
+    // Same-origin by default; cross-origin to the backend only when the static
+    // site is served separately on a non-default port (e.g. http.server on 8080).
+    // Default-port HTTP/HTTPS means a reverse proxy (Caddy) fronts the backend,
+    // so /api/* and /ws/* resolve against the page's own origin.
+    var API = (location.protocol === 'https:' || location.port === '8085'
+               || location.port === '' || location.port === '80')
       ? ''
       : (location.hostname === 'localhost'
           ? 'http://localhost:8085'
