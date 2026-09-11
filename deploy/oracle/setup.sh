@@ -66,6 +66,19 @@ if ! swapon --show | grep -q /swapfile; then
   grep -q '/swapfile' /etc/fstab || echo '/swapfile none swap sw 0 0' >> /etc/fstab
 fi
 
+echo "==> Ensuring local firewall allows web traffic"
+# Some Oracle Ubuntu images ship a default-deny INPUT chain that only opens
+# port 22. Add ACCEPT rules for 80/443 if missing, and persist them so a
+# reboot (e.g. unattended security updates) does not break the site.
+if command -v iptables >/dev/null 2>&1; then
+  iptables -C INPUT -p tcp --dport 80 -j ACCEPT 2>/dev/null || iptables -I INPUT -p tcp --dport 80 -j ACCEPT
+  iptables -C INPUT -p tcp --dport 443 -j ACCEPT 2>/dev/null || iptables -I INPUT -p tcp --dport 443 -j ACCEPT
+  if ! dpkg -s iptables-persistent >/dev/null 2>&1; then
+    apt-get install -y -qq iptables-persistent >/dev/null 2>&1 || true
+  fi
+  printf 'n\n' | netfilter-persistent save >/dev/null 2>&1 || true
+fi
+
 echo "==> Cloning repositories (must be public)"
 mkdir -p "$BASE"
 for r in "${REPOS[@]}"; do
