@@ -137,9 +137,9 @@ RestartSec=3
 WantedBy=multi-user.target
 UNIT
 
-echo "==> Writing Caddyfile (HTTP on :80 -> backend on 127.0.0.1:8085)"
+echo "==> Writing Caddyfile (muath.online -> backend on 127.0.0.1:8085, automatic HTTPS)"
 cat > /etc/caddy/Caddyfile <<'CADDY'
-:80 {
+muath.online, www.muath.online {
 	reverse_proxy 127.0.0.1:8085
 }
 CADDY
