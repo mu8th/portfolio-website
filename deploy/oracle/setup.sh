@@ -57,6 +57,15 @@ CADDYUNIT
   fi
 fi
 
+echo "==> Ensuring swap (small free-tier VMs need headroom)"
+if ! swapon --show | grep -q /swapfile; then
+  fallocate -l 2G /swapfile
+  chmod 600 /swapfile
+  mkswap /swapfile >/dev/null
+  swapon /swapfile
+  grep -q '/swapfile' /etc/fstab || echo '/swapfile none swap sw 0 0' >> /etc/fstab
+fi
+
 echo "==> Cloning repositories (must be public)"
 mkdir -p "$BASE"
 for r in "${REPOS[@]}"; do
