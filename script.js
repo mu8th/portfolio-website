@@ -559,7 +559,9 @@
     if (!lines.length) return;
 
     if (reducedMotion) {
-      lines.forEach(function (l) { l.classList.add('hit'); });
+      lines.forEach(function (l) {
+        l.classList.add(l.getAttribute('data-finding') ? 'hit' : 'passed');
+      });
       if (fill) fill.style.width = '100%';
       return;
     }
@@ -574,7 +576,7 @@
         if (i >= lines.length) {
           // finished: hold, then reset and loop
           setTimeout(function () {
-            lines.forEach(function (l) { l.classList.remove('scanning', 'hit'); });
+            lines.forEach(function (l) { l.classList.remove('scanning', 'hit', 'passed'); });
             if (fill) fill.style.width = '0%';
             i = 0;
             setTimeout(next, 500);
@@ -588,6 +590,9 @@
         // fires, and on the last line it has already wrapped to lines.length.
         if (line.getAttribute('data-finding')) {
           setTimeout(function () { line.classList.add('hit'); }, 420);
+        } else {
+          // Clean line: the sweep passes over it with a green light.
+          setTimeout(function () { line.classList.add('passed'); }, 420);
         }
         i++;
         setTimeout(next, 520);
@@ -778,8 +783,17 @@
       var body = document.querySelector('.project-visual--scan .project-visual-body');
       if (!body || !data.findings) return;
       var sevLabel = { sqli: 'SQLi · CRIT', xss: 'XSS · HIGH', secrets: 'Secret · MED' };
+      // Interleave real clean files (from the same scan) so the sweep shows
+      // safe lines getting a green light, not an unbroken wall of hits.
+      var clean = data.clean_samples || [];
+      var ci = 0;
       var html = '';
-      data.findings.forEach(function (f) {
+      data.findings.forEach(function (f, idx) {
+        if (idx > 0 && idx % 3 === 0 && ci < clean.length) {
+          var c = clean[ci++];
+          html += '<span class="scan-line">' + esc(c.file) +
+                  '  <span style="color:var(--muted-dim)">(' + esc(c.repo) + ')</span></span>';
+        }
         var lab = sevLabel[f.category] || (f.label + ' · ' + Math.round(f.severity_score * 100));
         html += '<span class="scan-line" data-finding="' + esc(lab) + '">' +
                 esc(f.code) + '  <span style="color:var(--muted-dim)">(' +
@@ -798,16 +812,17 @@
         if (i >= lines.length) {
           if (fill) fill.style.width = '100%';
           setTimeout(function () {
-            lines.forEach(function (l) { l.classList.remove('scanning', 'hit'); });
+            lines.forEach(function (l) { l.classList.remove('scanning', 'hit', 'passed'); });
             if (fill) fill.style.width = '0%';
             i = 0;
             setTimeout(next, 600);
           }, 3200);
           return;
         }
-        lines[i].classList.add('scanning');
+        var line = lines[i];
+        line.classList.add('scanning');
         if (fill) fill.style.width = Math.round(((i + 1) / lines.length) * 100) + '%';
-        lines[i].classList.add('hit');
+        line.classList.add(line.getAttribute('data-finding') ? 'hit' : 'passed');
         i++;
         setTimeout(next, 480);
       })();

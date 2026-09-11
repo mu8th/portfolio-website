@@ -18,7 +18,9 @@ error payload instead of crashing at import time.
 from __future__ import annotations
 
 import importlib.util
+import os
 import time
+from pathlib import Path
 from typing import Any
 
 from .. import config
@@ -123,6 +125,52 @@ def _select_shown(findings: list[dict[str, Any]], max_findings: int) -> list[dic
     return shown
 
 
+def _collect_clean_files(
+    engine: Any, findings: list[dict[str, Any]], max_samples: int = 8
+) -> list[dict[str, str]]:
+    """Pick a few real Python files the scan found nothing in.
+
+    The demo visual interleaves these between findings so the sweep shows safe
+    lines getting a green light instead of an unbroken wall of hits. Selection
+    mirrors the engine's own walk (same skip dirs/extensions, same relative
+    paths) so every sample is a file the scan actually covered.
+    """
+    dirty: dict[str, set[str]] = {}
+    for f in findings:
+        dirty.setdefault(f["repo"], set()).add(f["file"])
+
+    skip_exts = getattr(engine, "SKIP_EXTENSIONS", set())
+    skip_dirs = getattr(engine, "SKIP_DIRS", frozenset())
+    self_file = getattr(engine, "_SELF_FILE", None)
+
+    clean: list[dict[str, str]] = []
+    for name in config.REPO_NAMES:
+        repo_dir = config.SERVER_DIR / name
+        if not repo_dir.is_dir():
+            continue
+        per_repo = 0
+        for root, dirs, files in os.walk(repo_dir):
+            dirs[:] = [d for d in sorted(dirs) if d not in skip_dirs]
+            for fname in sorted(files):
+                if per_repo >= 3:
+                    break
+                path = Path(root) / fname
+                if path.suffix.lower() != ".py" or path.suffix.lower() in skip_exts:
+                    continue
+                if self_file is not None and path.resolve() == self_file:
+                    continue
+                rel = os.path.relpath(path, repo_dir).replace(os.sep, "/")
+                if rel in dirty.get(name, set()):
+                    continue
+                clean.append({"repo": name, "file": rel})
+                per_repo += 1
+            if per_repo >= 3:
+                break
+        if len(clean) >= max_samples:
+            break
+    return clean[:max_samples]
+
+
 def scan_repos(max_findings: int = 25) -> dict[str, Any]:
     """Scan all sibling repos with the vulnerability-scanner's real ``scan_codebase()``.
 
@@ -165,4 +213,5 @@ def scan_repos(max_findings: int = 25) -> dict[str, Any]:
         "severity_breakdown": breakdown,
         "scan_time_ms": round((time.perf_counter() - started) * 1000, 2),
         "findings": shown,
+        "clean_samples": _collect_clean_files(engine, all_findings),
     }
