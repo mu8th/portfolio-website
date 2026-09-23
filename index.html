@@ -19,7 +19,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800;900&family=Geist+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=20260916j">
+<link rel="stylesheet" href="styles.css?v=20260923a">
 </head>
 <body>
 
@@ -284,7 +284,7 @@
 
     <div class="projects-grid">
 
-      <!-- FaultLine: lead card — hypothesis-driven chaos testing with a live SLO graph -->
+      <!-- FaultLine: lead card: hypothesis-driven chaos testing with a live SLO graph -->
       <div class="glow-card project-card project-card--wide project-card--lead reveal">
         <div class="project-visual project-visual--chaos" aria-hidden="false" data-demo="chaos">
           <div class="project-visual-bar">
@@ -308,9 +308,9 @@
             </div>
             <svg class="chaos-chart" id="chaos-chart" aria-hidden="true"></svg>
             <div class="chaos-windows" id="chaos-windows" aria-label="Per-phase probe statistics">
-              <span class="cw-chip" data-cw="baseline"><span class="cw-name">baseline</span><span class="cw-val">—</span></span>
-              <span class="cw-chip" data-cw="fault"><span class="cw-name">fault</span><span class="cw-val">—</span></span>
-              <span class="cw-chip" data-cw="recovery"><span class="cw-name">recovery</span><span class="cw-val">—</span></span>
+              <span class="cw-chip" data-cw="baseline"><span class="cw-name">baseline</span><span class="cw-val">--</span></span>
+              <span class="cw-chip" data-cw="fault"><span class="cw-name">fault</span><span class="cw-val">--</span></span>
+              <span class="cw-chip" data-cw="recovery"><span class="cw-name">recovery</span><span class="cw-val">--</span></span>
             </div>
             <div class="chaos-console" id="chaos-console">
               <span class="chaos-line">$ faultline run --experiment portfolio-demo</span>
@@ -328,7 +328,7 @@
               Hypothesis-driven chaos testing: declare SLO hypotheses, inject bounded
               faults (process kill, CPU/memory pressure, network delay), probe
               continuously, and grade pass/fail with real evidence. The chart above is
-              the live experiment — real probes against a spawned target while real
+              the live experiment: real probes against a spawned target while real
               CPU pressure is injected, graded against the 25ms p95 SLO on every run.
             </p>
           </div>
@@ -494,9 +494,9 @@
               <span class="rag-stage is-done" data-stage="embed">embed</span><span class="rag-arrow">▸</span><span class="rag-stage is-done" data-stage="retrieve">retrieve top-4</span><span class="rag-arrow">▸</span><span class="rag-stage is-done" data-stage="synthesize">synthesize</span>
             </span>
             <span class="rag-srcs">
-              <span class="rag-src hidden-line"><span class="rag-rank">[1]</span> retrieval.py:41–62 query <span class="rag-scorbar"><span style="width:87%"></span></span> <span class="rag-score">0.87</span><span class="rag-snippet">“up to k (position, cosine_score) tuples, highest score first”</span></span>
-              <span class="rag-src hidden-line"><span class="rag-rank">[2]</span> embed.py:33–59 embed_texts <span class="rag-scorbar"><span style="width:63%"></span></span> <span class="rag-score">0.63</span><span class="rag-snippet">“texts are embedded in batches against the local endpoint”</span></span>
-              <span class="rag-src hidden-line"><span class="rag-rank">[3]</span> ingestion.py:107–124 ingest <span class="rag-scorbar"><span style="width:41%"></span></span> <span class="rag-score">0.41</span><span class="rag-snippet">“one chunk per top-level symbol, plus module preambles”</span></span>
+              <span class="rag-src hidden-line"><span class="rag-rank">[1]</span> retrieval.py:41-62 query <span class="rag-scorbar"><span style="width:87%"></span></span> <span class="rag-score">0.87</span><span class="rag-snippet">"up to k (position, cosine_score) tuples, highest score first"</span></span>
+              <span class="rag-src hidden-line"><span class="rag-rank">[2]</span> embed.py:33-59 embed_texts <span class="rag-scorbar"><span style="width:63%"></span></span> <span class="rag-score">0.63</span><span class="rag-snippet">"texts are embedded in batches against the local endpoint"</span></span>
+              <span class="rag-src hidden-line"><span class="rag-rank">[3]</span> ingestion.py:107-124 ingest <span class="rag-scorbar"><span style="width:41%"></span></span> <span class="rag-score">0.41</span><span class="rag-snippet">"one chunk per top-level symbol, plus module preambles"</span></span>
             </span>
             <span class="rag-answer hidden-line">Chunks are embedded and ranked by cosine similarity to the query…</span>
             <span class="rag-meta hidden-line">answered in 412ms · model dirk-qwen3.8-27b · engine ollama · cited [1] [2] [3]</span>
@@ -596,6 +596,6 @@
 
 <button class="to-top" aria-label="Back to top">↑</button>
 
-<script src="script.js?v=20260916j"></script>
+<script src="script.js?v=20260923a"></script>
 </body>
 </html>

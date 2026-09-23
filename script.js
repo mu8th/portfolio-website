@@ -893,7 +893,7 @@
       })();
     }
 
-    /* RAG (code assistant) — v2: pipeline stages (embed ▸ retrieve ▸
+    /* RAG (code assistant), v2: pipeline stages (embed ▸ retrieve ▸
        synthesize), ranked sources with snippets, a streamed answer, and the
        latency/model metadata the API already returns. The visual body keeps
        a fixed structure (query / stages / sources / answer / meta); a live
@@ -927,13 +927,13 @@
     }
 
     // One ranked source row: [rank] file:line-range symbol + score bar + the
-    // retrieved snippet underneath — the passage the answer is grounded in.
+    // retrieved snippet underneath (the passage the answer is grounded in.
     function ragSourceLine(s, i) {
       var file = s.path ? s.path.split('/').pop() : 'source';
       var range = '';
       if (s.start_line) {
         range = s.end_line && s.end_line !== s.start_line
-          ? ':' + s.start_line + '–' + s.end_line
+          ? ':' + s.start_line + '-' + s.end_line
           : ':' + s.start_line;
       }
       var sym = s.symbol && s.symbol !== '<module>' ? ' ' + s.symbol : '';
@@ -1047,7 +1047,7 @@
     }
 
     // Honest degradation: pipeline or model down. Keep the layout, mark the
-    // failed stage, show the reason — never a blank terminal.
+    // failed stage, show the reason; never a blank terminal.
     function renderRagError(data, question) {
       var body = ragBody();
       if (!body) return;
@@ -1228,7 +1228,7 @@
       recovery: { line: 'rgba(134,239,172,0.9)',  band: 'rgba(34,197,94,0.05)' }
     };
 
-    // Percentile with linear interpolation between closest ranks — the same
+    // Percentile with linear interpolation between closest ranks (the same
     // method as FaultLine's own SLO math, so the live traces agree with the
     // graded verdict.
     function chaosPercentile(sortedAsc, p) {
@@ -1274,7 +1274,7 @@
             if (pt.err || pt.ms == null) bad++;
             else lats.push(pt.ms);
           }
-          if (!n) { val.textContent = '—'; chip.classList.remove('is-on'); return; }
+          if (!n) { val.textContent = '--'; chip.classList.remove('is-on'); return; }
           var srt = lats.slice().sort(function (a, b) { return a - b; });
           var p95 = chaosPercentile(srt, 95);
           text = (p95 != null ? Math.round(p95) + 'ms p95' : 'no latency') +
@@ -1375,7 +1375,7 @@
       parts.push('<line x1="' + L + '" y1="' + sy.toFixed(1) + '" x2="' + (W - R) + '" y2="' + sy.toFixed(1) + '" stroke="rgba(245,158,11,0.9)" stroke-width="1.2"/>');
       parts.push('<text x="' + (L + 6) + '" y="' + (sy - 5).toFixed(1) + '" font-size="9" fill="rgba(245,158,11,0.95)">SLO ' + CHAOS_SLO + 'ms</text>');
       // live readout: rolling p95/p50, last probe, probe count, error count,
-      // and the SLO headroom (or breach) — the numbers the verdict rests on
+      // and the SLO headroom (or breach), the numbers the verdict rests on
       if (n) {
         var lats = [], errs = 0;
         for (var u = 0; u < n; u++) {
@@ -1539,7 +1539,7 @@
           finish(false);
         });
         // Safety net: the final frame always arrives when a run completes, so
-        // silence past this deadline means the stream broke — unstick button.
+        // silence past this deadline means the stream broke; unstick button.
         setTimeout(function () {
           if (!settled) {
             settled = true;

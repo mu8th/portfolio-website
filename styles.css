@@ -534,7 +534,7 @@ section { padding: 5rem 0; position: relative; overflow: hidden; }
   .project-card--featured { grid-column: span 2; }
 }
 .project-card { display: flex; flex-direction: column; padding: 2rem; height: 100%; }
-/* lead card: FaultLine's flagship slot — violet frame + accent bar */
+/* lead card: FaultLine's flagship slot: violet frame + accent bar */
 .project-card--lead { border: 1px solid rgba(139, 92, 246, 0.3); }
 .project-card--lead .project-visual { border-color: rgba(139, 92, 246, 0.25); }
 .lead-tag {
