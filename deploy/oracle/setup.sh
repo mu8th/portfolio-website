@@ -103,9 +103,11 @@ echo "==> Creating virtual environments and installing dependencies"
 "$UV" venv --allow-existing "$BASE/venvs/portfolio" >/dev/null
 "$UV" pip install --quiet --python "$BASE/venvs/portfolio/bin/python" \
   fastapi "uvicorn[standard]" pyyaml httpx
+"$BASE/venvs/portfolio/bin/python" -c "import fastapi, uvicorn, yaml, httpx"
 "$UV" venv --allow-existing "$BASE/venvs/coderag" >/dev/null
 "$UV" pip install --quiet --python "$BASE/venvs/coderag/bin/python" \
   fastapi "uvicorn[standard]" numpy
+"$BASE/venvs/coderag/bin/python" -c "import fastapi, uvicorn, numpy"
 
 echo "==> Writing systemd units"
 cat > /etc/systemd/system/portfolio.service <<'UNIT'
