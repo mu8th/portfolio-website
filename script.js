@@ -1219,7 +1219,9 @@
        SLO-headroom in the readout, and a per-phase stats strip driven from
        the same samples (finalized from the real report at run end).        */
     var chaosPts = [];
-    var CHAOS_YMAX = 100;   // fixed 0..100ms scale: no rescale jitter mid-run
+    var CHAOS_YFLOOR = 100; // scale floor: keeps the SLO line legible when idle
+    var CHAOS_YCAP = 5000;  // probes above this clamp at the top edge with an off-scale tick
+    var CHAOS_GRID = [25, 50, 100, 250, 500, 1000];
     var CHAOS_SLO = 25;     // the p95 SLO the demo grades against (ms)
     var CHAOS_XCAP = 56;    // x-axis probe capacity for a full demo run
     var CHAOS_PHASE = {
@@ -1291,22 +1293,28 @@
       var W = Math.max(320, Math.round(svg.getBoundingClientRect().width)) || 640;
       var H = 232, L = 42, R = 12, T = 26, B = 22;
       var iw = W - L - R, ih = H - T - B;
-      function y(ms) { return T + ih * (1 - Math.min(ms, CHAOS_YMAX) / CHAOS_YMAX); }
       var n = chaosPts.length;
       var denom = Math.max(CHAOS_XCAP, n);
       function x(i) { return L + iw * ((i + 0.5) / denom); }
+      // Adaptive scale: 100ms floor keeps the SLO line legible when idle; once
+      // a probe exceeds it the scale doubles in one jump (never shrinks), so
+      // the fault spike lands on-chart instead of pinning to the ceiling
+      var maxMs = 0;
+      for (var m0 = 0; m0 < n; m0++) if (chaosPts[m0].ms != null && chaosPts[m0].ms > maxMs) maxMs = chaosPts[m0].ms;
+      var yMax = CHAOS_YFLOOR;
+      while (yMax < CHAOS_YCAP && maxMs > yMax) yMax *= 2;
+      function y(ms) { return T + ih * (1 - Math.min(ms, yMax) / yMax); }
       var parts = [];
-      // danger zone: everything above the SLO line is red-tinted
       var sy = y(CHAOS_SLO);
-      parts.push('<rect x="' + L + '" y="' + T + '" width="' + iw + '" height="' + Math.max(0, sy - T).toFixed(1) + '" fill="rgba(239,68,68,0.045)"/>');
-      // minor gridlines every 10ms, labeled majors every 25ms
-      for (var g = 0; g <= CHAOS_YMAX; g += 10) {
+      // danger-zone tint only while the scale is close enough to the SLO to mean anything
+      if (yMax <= CHAOS_YFLOOR) parts.push('<rect x="' + L + '" y="' + T + '" width="' + iw + '" height="' + Math.max(0, sy - T).toFixed(1) + '" fill="rgba(239,68,68,0.045)"/>');
+      // labeled gridlines: smallest nice step giving at most 6 lines
+      var step = CHAOS_GRID[CHAOS_GRID.length - 1];
+      for (var gs = 0; gs < CHAOS_GRID.length; gs++) if (yMax / CHAOS_GRID[gs] <= 6) { step = CHAOS_GRID[gs]; break; }
+      for (var g = 0; g <= yMax; g += step) {
         var gy = y(g);
-        var major = g % 25 === 0;
-        parts.push('<line x1="' + L + '" y1="' + gy.toFixed(1) + '" x2="' + (W - R) + '" y2="' + gy.toFixed(1) + '" stroke="rgba(255,255,255,' + (major ? 0.07 : 0.03) + ')" stroke-width="1"/>');
-        if (major) {
-          parts.push('<text x="' + (L - 6) + '" y="' + (gy + 3).toFixed(1) + '" text-anchor="end" font-size="9" fill="rgba(255,255,255,0.35)">' + g + '</text>');
-        }
+        parts.push('<line x1="' + L + '" y1="' + gy.toFixed(1) + '" x2="' + (W - R) + '" y2="' + gy.toFixed(1) + '" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>');
+        parts.push('<text x="' + (L - 6) + '" y="' + (gy + 3).toFixed(1) + '" text-anchor="end" font-size="9" fill="rgba(255,255,255,0.45)">' + g + '</text>');
       }
       parts.push('<text x="' + L + '" y="13" font-size="9" fill="rgba(255,255,255,0.4)">latency (ms)</text>');
       if (n) {
@@ -1366,7 +1374,7 @@
           }
           var col = (CHAOS_PHASE[pt.phase] || CHAOS_PHASE.baseline).line;
           parts.push('<circle cx="' + x(q).toFixed(1) + '" cy="' + y(pt.ms).toFixed(1) + '" r="2.4" fill="' + (pt.ms > CHAOS_SLO ? '#f87171' : col) + '"><title>probe ' + (q + 1) + ' · ' + pt.phase + ' · ' + pt.ms.toFixed(1) + 'ms</title></circle>');
-          if (pt.ms > CHAOS_YMAX) {
+          if (pt.ms > yMax) {
             // off-scale tick under the clamped dot: the value sits above the
             // fixed 0-100ms scale, the tooltip carries the real number
             parts.push('<path d="M ' + (x(q) - 3).toFixed(1) + ' ' + (T + 11).toFixed(1) + ' L ' + x(q).toFixed(1) + ' ' + (T + 5).toFixed(1) + ' L ' + (x(q) + 3).toFixed(1) + ' ' + (T + 11).toFixed(1) + '" fill="none" stroke="rgba(248,113,113,0.75)" stroke-width="1.2"><title>probe ' + (q + 1) + ' · ' + pt.ms.toFixed(0) + 'ms (above scale)</title></path>');
