@@ -15,7 +15,7 @@ fi
 
 GH_USER="mu8th"
 BASE="/opt/portfolio"
-REPOS=(portfolio-website api-contract-tester performance-profiler vulnerability-scanner code-rag)
+REPOS=(portfolio-website api-contract-tester performance-profiler vulnerability-scanner code-rag faultline)
 
 echo "==> Installing system packages"
 export DEBIAN_FRONTEND=noninteractive
