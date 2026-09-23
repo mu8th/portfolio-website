@@ -84,8 +84,14 @@ mkdir -p "$BASE"
 for r in "${REPOS[@]}"; do
   d="$BASE/$r"
   if [ -d "$d/.git" ]; then
-    echo "    $r: exists, pulling latest"
-    git -C "$d" pull --ff-only || echo "    WARNING: pull failed for $r, keeping existing checkout"
+    echo "    $r: exists, syncing to origin/main"
+    # fetch + hard reset (not pull --ff-only): a deploy target must mirror the
+    # remote exactly, including after force-pushes / history rewrites.
+    if git -C "$d" fetch --quiet origin main && git -C "$d" reset --hard --quiet origin/main; then
+      echo "    $r: at $(git -C "$d" rev-parse --short HEAD)"
+    else
+      echo "    WARNING: sync failed for $r, keeping existing checkout"
+    fi
   else
     echo "    $r: cloning"
     git clone --quiet "https://github.com/${GH_USER}/${r}.git" "$d" \
