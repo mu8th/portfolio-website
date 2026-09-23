@@ -102,7 +102,7 @@ done
 echo "==> Creating virtual environments and installing dependencies"
 "$UV" venv --allow-existing "$BASE/venvs/portfolio" >/dev/null
 "$UV" pip install --quiet --python "$BASE/venvs/portfolio/bin/python" \
-  fastapi "uvicorn[standard]" pyyaml
+  fastapi "uvicorn[standard]" pyyaml httpx
 "$UV" venv --allow-existing "$BASE/venvs/coderag" >/dev/null
 "$UV" pip install --quiet --python "$BASE/venvs/coderag/bin/python" \
   fastapi "uvicorn[standard]" numpy
