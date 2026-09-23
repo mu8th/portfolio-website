@@ -1310,6 +1310,14 @@
       }
       parts.push('<text x="' + L + '" y="13" font-size="9" fill="rgba(255,255,255,0.4)">latency (ms)</text>');
       if (n) {
+        // faint continuous spine linking every probe across phase boundaries,
+        // so the run reads as one series under the per-phase colored lines
+        var spine = '';
+        for (var c = 0; c < n; c++) {
+          if (chaosPts[c].ms == null) continue;
+          spine += (spine ? ' L' : 'M') + x(c).toFixed(1) + ' ' + y(chaosPts[c].ms).toFixed(1);
+        }
+        if (spine) parts.push('<path d="' + spine + '" fill="none" stroke="rgba(148,163,184,0.3)" stroke-width="1" stroke-dasharray="1 3"/>');
         // phase bands + one line per consecutive phase run
         var i = 0;
         while (i < n) {
@@ -1358,6 +1366,11 @@
           }
           var col = (CHAOS_PHASE[pt.phase] || CHAOS_PHASE.baseline).line;
           parts.push('<circle cx="' + x(q).toFixed(1) + '" cy="' + y(pt.ms).toFixed(1) + '" r="2.4" fill="' + (pt.ms > CHAOS_SLO ? '#f87171' : col) + '"><title>probe ' + (q + 1) + ' · ' + pt.phase + ' · ' + pt.ms.toFixed(1) + 'ms</title></circle>');
+          if (pt.ms > CHAOS_YMAX) {
+            // off-scale tick under the clamped dot: the value sits above the
+            // fixed 0-100ms scale, the tooltip carries the real number
+            parts.push('<path d="M ' + (x(q) - 3).toFixed(1) + ' ' + (T + 11).toFixed(1) + ' L ' + x(q).toFixed(1) + ' ' + (T + 5).toFixed(1) + ' L ' + (x(q) + 3).toFixed(1) + ' ' + (T + 11).toFixed(1) + '" fill="none" stroke="rgba(248,113,113,0.75)" stroke-width="1.2"><title>probe ' + (q + 1) + ' · ' + pt.ms.toFixed(0) + 'ms (above scale)</title></path>');
+          }
         }
         // peak marker: ring + label on the slowest successful probe of the run
         var peakIdx = -1, peakMs = -1;
