@@ -178,8 +178,8 @@
 
     var DEMO = [
       { cmd: 'whoami', out: 'Muath | Software Engineering student @ WSU · SWE intern @ SEL', cls: '' },
-      { cmd: 'ls ~/projects', out: 'api-contract-tester/  performance-profiler/  vulnerability-scanner/  code-rag/', cls: '' },
-      { cmd: 'python -m pytest ~/projects --tb=no -q', out: '97 passed, 0 failed | 4 projects · coverage 80%+', cls: 'ok' },
+      { cmd: 'ls ~/projects', out: 'faultline/  api-contract-tester/  performance-profiler/  vulnerability-scanner/  code-rag/', cls: '' },
+      { cmd: 'python -m pytest ~/projects --tb=no -q', out: '97 passed, 0 failed | 5 projects · coverage 80%+', cls: 'ok' },
       { cmd: 'docker compose up -d', out: 'services healthy · api · worker · db', cls: 'ok' },
       { cmd: 'git push origin main', out: 'main → main · CI green', cls: 'ok' }
     ];
@@ -222,12 +222,13 @@
         addOut('commands: help · whoami · projects · skills · contact · git log · clear · sudo hire-me', 'dim');
       },
       whoami: function () { addOut('Muath | Software Engineering student @ WSU · SWE intern @ SEL'); },
-      ls: function () { addOut('api-contract-tester/  performance-profiler/  vulnerability-scanner/  code-rag/'); },
+      ls: function () { addOut('faultline/  api-contract-tester/  performance-profiler/  vulnerability-scanner/  code-rag/'); },
       projects: function () {
-        addOut('01  API Contract Testing Platform: living OpenAPI contracts, breaking-change diffs');
-        addOut('02  Real-time Performance Profiler: live flame graphs, hot-path detection');
-        addOut('03  Real-time Vulnerability Scanner: SQLi / XSS / secrets static analysis');
-        addOut('04  Local RAG Code Assistant: semantic search, cited answers from your codebase');
+        addOut('01  FaultLine Chaos Testing Platform: fault injection + SLO grading, live latency graph');
+        addOut('02  API Contract Testing Platform: living OpenAPI contracts, breaking-change diffs');
+        addOut('03  Real-time Performance Profiler: live flame graphs, hot-path detection');
+        addOut('04  Real-time Vulnerability Scanner: SQLi / XSS / secrets static analysis');
+        addOut('05  Local RAG Code Assistant: semantic search, cited answers from your codebase');
       },
       skills: function () {
         addOut('python · structured text (iec 61131-3) · t-sql · fastapi · openapi · rtac extensions · rag pipelines · embeddings · ollama · docker · pytest · ruff · mypy');
@@ -700,7 +701,24 @@
       var box = document.querySelector('.project-visual--diff');
       var body = box ? box.querySelector('.project-visual-body') : null;
       if (!body || !data.changes) return;
-      var html = '';
+      // change-type summary strip
+      var cnt = { del: 0, add: 0, mod: 0 };
+      data.changes.forEach(function (c) {
+        if (c.kind === 'removed_endpoint' || c.kind === 'removed_field') cnt.del++;
+        else if (c.kind === 'added_endpoint' || c.kind === 'added_field') cnt.add++;
+        else cnt.mod++;
+      });
+      var html = '<span class="diff-summary">' +
+                 '<b class="s-del">-' + cnt.del + ' removed</b>' +
+                 '<b class="s-add">+' + cnt.add + ' added</b>' +
+                 '<b class="s-mod">~' + cnt.mod + ' modified</b></span>';
+      // change-risk strip: share of breaking vs non-breaking changes, the
+      // number a reviewer actually cares about before reading the diff
+      var totalCh = (data.breaking_count || 0) + (data.non_breaking_count || 0);
+      var riskPct = totalCh ? Math.round((data.breaking_count / totalCh) * 100) : 0;
+      html += '<span class="risk-strip"><span class="risk-label">change risk</span>' +
+              '<span class="risk-bar"><span class="risk-fill" style="width:' + riskPct + '%"></span></span>' +
+              '<span class="risk-pct">' + riskPct + '% breaking</span></span>';
       data.changes.forEach(function (c) {
         var cls = 'ctx';
         var badge = '';
@@ -757,12 +775,35 @@
                          '<span>' + data.hot_path_pct + '% of CPU</span>';
       }
       setMetric('profile', data.hot_path_pct + '%');
+      // labeled per-function bars from the real profile (sorted hot -> cold)
+      var bars = wrap.querySelector('.flame-wrap');
+      if (bars) {
+        var colors = [
+          'linear-gradient(90deg,#a78bfa,#7c3aed)',
+          'linear-gradient(90deg,#22d3ee,#06b6d4)',
+          'linear-gradient(90deg,#ec4899,#be185d)'
+        ];
+        var rows = '';
+        data.functions.forEach(function (f, i) {
+          rows += '<div class="flame-bar-row">' +
+                  '<span class="flame-bar-name" title="' + esc(f.function_name) + '">' + esc(f.function_name) + '</span>' +
+                  '<div class="flame-bar-track"><div class="flame-bar-fill" style="width:0%;background:' + (colors[i] || colors[2]) + '"></div></div>' +
+                  '<span class="flame-bar-pct">' + f.cpu_pct.toFixed(1) + '%</span></div>';
+        });
+        bars.innerHTML = rows;
+        requestAnimationFrame(function () {
+          var fills = bars.querySelectorAll('.flame-bar-fill');
+          data.functions.forEach(function (f, i) {
+            if (fills[i]) fills[i].style.width = f.cpu_pct + '%';
+          });
+        });
+      }
       // live readout row
       var live = wrap.querySelector('.flame-live');
       if (!live) {
         live = document.createElement('div');
         live.className = 'flame-live';
-        live.style.cssText = 'width:100%;margin-top:.5rem;font-size:.6rem;color:var(--muted-dim)';
+        live.style.cssText = 'width:100%;margin-top:.5rem;font-size:.68rem;color:var(--muted-dim)';
         wrap.appendChild(live);
       }
       live.textContent = 'waiting for live stream';
@@ -793,7 +834,7 @@
       // safe lines getting a green light, not an unbroken wall of hits.
       var clean = data.clean_samples || [];
       var ci = 0;
-      var html = '';
+      var html = '<div class="scan-window">';
       data.findings.forEach(function (f, idx) {
         if (idx > 0 && idx % 3 === 0 && ci < clean.length) {
           var c = clean[ci++];
@@ -805,13 +846,29 @@
                 esc(f.code) + '  <span style="color:var(--muted-dim)">(' +
                 esc(f.repo) + ':' + f.line + ')</span></span>';
       });
+      html += '</div>';
       html += '<div class="scan-progress"><div class="scan-progress-fill"></div></div>';
+      // severity distribution from the real scan breakdown
+      var bd = data.severity_breakdown || {};
+      var tot = data.total_findings || 0;
+      if (tot) {
+        var sevDefs = [['critical', '#ef4444'], ['high', '#f97316'], ['medium', '#eab308'], ['low', '#22c55e']];
+        var barH = '', labH = '';
+        sevDefs.forEach(function (s) {
+          var c = bd[s[0]] || 0;
+          if (!c) return;
+          barH += '<span style="width:' + (c / tot * 100).toFixed(1) + '%;background:' + s[1] + '"></span>';
+          labH += (labH ? ' · ' : '') + c + ' ' + s[0];
+        });
+        if (barH) html += '<div class="scan-sev"><div class="scan-sev-bar">' + barH + '</div><span class="scan-sev-labels">' + labH + '</span></div>';
+      }
       body.innerHTML = html;
       body.classList.add('is-live');
       setMetric('scan', data.total_findings);
       // sweep with real findings
       var lines = body.querySelectorAll('.scan-line');
       var fill = body.querySelector('.scan-progress-fill');
+      var win = body.querySelector('.scan-window');
       var i = 0;
       (function next() {
         if (i > 0) lines[i - 1].classList.remove('scanning');
@@ -820,6 +877,7 @@
           setTimeout(function () {
             lines.forEach(function (l) { l.classList.remove('scanning', 'hit', 'passed'); });
             if (fill) fill.style.width = '0%';
+            if (win) win.scrollTop = 0;
             i = 0;
             setTimeout(next, 600);
           }, 3200);
@@ -829,23 +887,206 @@
         line.classList.add('scanning');
         if (fill) fill.style.width = Math.round(((i + 1) / lines.length) * 100) + '%';
         line.classList.add(line.getAttribute('data-finding') ? 'hit' : 'passed');
+        if (win) win.scrollTop = Math.max(0, line.offsetTop - win.clientHeight * 0.4);
         i++;
         setTimeout(next, 480);
       })();
     }
 
-    /* RAG (code assistant) */
+    /* RAG (code assistant) — v2: pipeline stages (embed ▸ retrieve ▸
+       synthesize), ranked sources with snippets, a streamed answer, and the
+       latency/model metadata the API already returns. The visual body keeps
+       a fixed structure (query / stages / sources / answer / meta); a live
+       run only re-fills it, so the canned and live states share one layout. */
     var RAG_QUESTIONS = [
       'How does the retrieval index rank code chunks?',
       'How are code chunks embedded?',
       'How does the system build citations?',
     ];
     var ragQ = 0;
-    // Reveal the canned RAG terminal lines in sequence. Called when the card
-    // scrolls into view, and again if the live demo can't reach the backend,
-    // so the terminal never stays a blank box. Gated on the body not being
-    // live-rendered: the auto-start demo replaces the canned lines entirely on
-    // a successful run, in which case there is nothing to reveal.
+    var ragBusy = false;
+    var ragTypeTimer = null;
+    var ragStaggerTimer = null;
+
+    function ragBody() {
+      var box = document.querySelector('.project-visual--rag');
+      return box ? box.querySelector('.project-visual-body') : null;
+    }
+
+    function ragSetStage(name, cls) {
+      var body = ragBody();
+      var el = body ? body.querySelector('.rag-stage[data-stage="' + name + '"]') : null;
+      if (el) el.className = 'rag-stage ' + (cls || '');
+    }
+
+    function ragSnippet(text, max) {
+      var t = String(text || '').replace(/\s+/g, ' ').trim();
+      if (!t) return '';
+      max = max || 88;
+      return t.length > max ? t.slice(0, max).replace(/\s+\S*$/, '') + '…' : t;
+    }
+
+    // One ranked source row: [rank] file:line-range symbol + score bar + the
+    // retrieved snippet underneath — the passage the answer is grounded in.
+    function ragSourceLine(s, i) {
+      var file = s.path ? s.path.split('/').pop() : 'source';
+      var range = '';
+      if (s.start_line) {
+        range = s.end_line && s.end_line !== s.start_line
+          ? ':' + s.start_line + '–' + s.end_line
+          : ':' + s.start_line;
+      }
+      var sym = s.symbol && s.symbol !== '<module>' ? ' ' + s.symbol : '';
+      var score = s.score != null ? s.score : 0;
+      var bar = Math.round(Math.max(0, Math.min(1, score)) * 100);
+      return '<span class="rag-src" data-rank="' + (i + 1) + '" style="animation-delay:' + (i * 240) + 'ms">' +
+        '<span class="rag-rank">[' + (i + 1) + ']</span> ' + esc(file) + esc(range) + esc(sym) +
+        ' <span class="rag-scorbar"><span style="width:' + bar + '%"></span></span>' +
+        ' <span class="rag-score">' + (s.score != null ? s.score.toFixed(2) : '-') + '</span>' +
+        (s.snippet ? '<span class="rag-snippet">' + esc(ragSnippet(s.snippet)) + '</span>' : '') +
+        '</span>';
+    }
+
+    // Stream the answer so synthesis reads as generation, not a paste.
+    // Long answers are chunked to cap at ~1.4s; reduced-motion renders the
+    // whole answer instantly.
+    function ragTypeAnswer(el, text, done) {
+      if (ragTypeTimer) { clearInterval(ragTypeTimer); ragTypeTimer = null; }
+      if (reducedMotion) {
+        el.classList.remove('rag-cursor');
+        el.textContent = text;
+        if (done) done();
+        return;
+      }
+      el.classList.add('rag-cursor');
+      el.textContent = '';
+      var i = 0;
+      var step = Math.max(2, Math.round(text.length / 85));
+      ragTypeTimer = setInterval(function () {
+        i += step;
+        el.textContent = text.slice(0, i);
+        if (i >= text.length) {
+          clearInterval(ragTypeTimer);
+          ragTypeTimer = null;
+          el.classList.remove('rag-cursor');
+          if (done) done();
+        }
+      }, 16);
+    }
+
+    // Reset the body to "request in flight": fresh query, embed stage active,
+    // empty sources, cleared answer + meta.
+    function ragPrepareRun(question) {
+      var body = ragBody();
+      if (!body) return;
+      // The canned rows start hidden (`.hidden-line`); a live run owns the
+      // layout, so drop the hidden/revealed state on the fixed rows now.
+      [' .rag-stages', ' .rag-answer', ' .rag-meta'].forEach(function (sel) {
+        var el = body.querySelector(sel);
+        if (el) el.classList.remove('hidden-line', 'rag-revealed');
+      });
+      var q = body.querySelector('.rag-q');
+      if (q) q.textContent = question;
+      var stages = body.querySelectorAll('.rag-stage');
+      stages.forEach(function (st, i) { st.className = 'rag-stage' + (i === 0 ? ' is-active' : ''); });
+      // Cancel any deferred work from a run that was just interrupted
+      // (stagger timeout, typewriter) so it can't write into this run.
+      if (ragStaggerTimer) { clearTimeout(ragStaggerTimer); ragStaggerTimer = null; }
+      if (ragTypeTimer) { clearInterval(ragTypeTimer); ragTypeTimer = null; }
+      var srcs = body.querySelector('.rag-srcs');
+      if (srcs) srcs.innerHTML = '';
+      var ans = body.querySelector('.rag-answer');
+      if (ans) {
+        ans.classList.remove('rag-cursor', 'rag-error');
+        ans.textContent = '';
+      }
+      var meta = body.querySelector('.rag-meta');
+      if (meta) { meta.textContent = ''; meta.classList.remove('is-on'); }
+      body.classList.add('is-live');
+    }
+
+    function renderRag(data) {
+      var body = ragBody();
+      if (!body) return;
+      var sources = data.sources || [];
+      var q = body.querySelector('.rag-q');
+      if (q && data.question) q.textContent = data.question;
+      // Embed is done by the time the response lands; retrieval is what just
+      // produced these sources.
+      ragSetStage('embed', 'is-done');
+      ragSetStage('retrieve', 'is-active');
+      var srcs = body.querySelector('.rag-srcs');
+      var html = '';
+      sources.forEach(function (s, i) { html += ragSourceLine(s, i); });
+      if (!sources.length) html = '<span class="rag-src">no sources retrieved</span>';
+      if (srcs) srcs.innerHTML = html;
+      setMetric('rag', sources.length || 0);
+      // Let the sources stagger in, then stream the answer. Tracked so a
+      // faster re-run can cancel it (see ragPrepareRun).
+      var delay = reducedMotion ? 0 : 240 * sources.length + 300;
+      ragStaggerTimer = setTimeout(function () {
+        ragSetStage('retrieve', 'is-done');
+        ragSetStage('synthesize', 'is-active');
+        var ans = body.querySelector('.rag-answer');
+        var meta = body.querySelector('.rag-meta');
+        var text = String(data.answer || '').trim() || 'no answer generated';
+        ragTypeAnswer(ans, text, function () {
+          ragSetStage('synthesize', 'is-done');
+          if (meta) {
+            var cites = sources.slice(0, 4).map(function (_, i) { return '[' + (i + 1) + ']'; }).join(' ');
+            // Simulate mode answers in ~0ms; floor to 1 so a real number
+            // shows (the "simulated" label keeps the speed honest).
+            meta.textContent = 'answered in ' + Math.max(1, Math.round(data.latency_ms || 0)) + 'ms' +
+              (data.model ? ' · model ' + data.model : '') +
+              (data.engine ? ' · engine ' + data.engine : '') +
+              (cites ? ' · cited ' + cites : '');
+            meta.classList.add('is-on');
+          }
+        });
+      }, delay);
+    }
+
+    // Honest degradation: pipeline or model down. Keep the layout, mark the
+    // failed stage, show the reason — never a blank terminal.
+    function renderRagError(data, question) {
+      var body = ragBody();
+      if (!body) return;
+      // May run on the untouched canned layout (no successful run yet), so
+      // drop hidden/revealed state on the fixed rows and cancel any pending
+      // timers before rendering the error.
+      ['.rag-stages', '.rag-answer', '.rag-meta'].forEach(function (sel) {
+        var el = body.querySelector(sel);
+        if (el) el.classList.remove('hidden-line', 'rag-revealed');
+      });
+      if (ragStaggerTimer) { clearTimeout(ragStaggerTimer); ragStaggerTimer = null; }
+      if (ragTypeTimer) { clearInterval(ragTypeTimer); ragTypeTimer = null; }
+      var q = body.querySelector('.rag-q');
+      if (q && question) q.textContent = question;
+      ragSetStage('embed', 'is-done');
+      ragSetStage('retrieve', 'is-done');
+      ragSetStage('synthesize', 'is-fail');
+      var srcs = body.querySelector('.rag-srcs');
+      if (srcs) srcs.innerHTML = '<span class="rag-src">no sources retrieved</span>';
+      var raw = String((data && data.error) || 'model offline');
+      var msg = /urlopen|connection|refused|timeout|timed out/i.test(raw)
+        ? 'code-rag service offline' : raw;
+      if (msg.length > 140) msg = msg.slice(0, 140) + '…';
+      var ans = body.querySelector('.rag-answer');
+      if (ans) {
+        if (ragTypeTimer) { clearInterval(ragTypeTimer); ragTypeTimer = null; }
+        ans.classList.remove('rag-cursor');
+        ans.classList.add('rag-error');
+        ans.textContent = '! answer unavailable: ' + msg;
+      }
+      var meta = body.querySelector('.rag-meta');
+      if (meta) { meta.textContent = 'pipeline stopped at synthesis'; meta.classList.add('is-on'); }
+      body.classList.add('is-live');
+    }
+
+    // Reveal the canned RAG lines in sequence. Called when the card scrolls
+    // into view, and again if the live demo can't reach the backend, so the
+    // terminal never stays a blank box. Gated on the body not being
+    // live-rendered: a successful run owns the layout after that.
     var ragRevealed = false;
     function ragReveal() {
       if (ragRevealed) return;
@@ -854,7 +1095,7 @@
       if (!box) return;
       var body = box.querySelector('.project-visual-body');
       if (body && body.classList.contains('is-live')) return;
-      var lines = box.querySelectorAll('.rag-src.hidden-line, .rag-answer.hidden-line');
+      var lines = box.querySelectorAll('.hidden-line');
       lines.forEach(function (l, i) {
         setTimeout(function () { l.classList.add('rag-revealed'); }, 350 + i * 300);
       });
@@ -869,67 +1110,293 @@
         }, { threshold: 0.4 }).observe(ragBox);
       }
     }
-    var ragBusy = false;
-    function renderRag(data) {
-      var body = document.querySelector('.project-visual--rag .project-visual-body');
-      if (!body) return;
-      var q = body.querySelector('.rag-q');
-      if (q && data.question) q.textContent = data.question;
-      var sources = data.sources || [];
-      var html = '';
-      sources.forEach(function (s, i) {
-        var loc = s.path ? s.path.split('/').pop() : 'source';
-        var label = loc + (s.start_line ? ':' + s.start_line : '');
-        html += '<span class="rag-src" data-score="' + (s.score || 0) + '">' +
-                esc(label) + ' <span class="rag-score">· ' + (s.score != null ? s.score.toFixed(2) : '-') + '</span></span>';
-      });
-      if (!sources.length) {
-        html += '<span class="rag-src">no sources retrieved</span>';
-      }
-      var ans = (data.answer || '').trim();
-      if (ans) {
-        var cites = sources.slice(0, 3).map(function (s) {
-          return s.path ? s.path.split('/').pop() : '';
-        }).filter(Boolean).join(' · ');
-        html += '<span class="rag-answer">' + esc(ans) +
-                (cites ? ' <span class="rag-cite">: ' + esc(cites) + '</span>' : '') + '</span>';
-      }
-      // Replace only the dynamic parts, keep the query line.
-      var keep = body.querySelector('.rag-q');
-      body.innerHTML = (keep ? keep.outerHTML : '') + html;
-      body.classList.add('is-live');
-      setMetric('rag', sources.length || 0);
-      // Animate the retrieved sources hitting one after another.
-      var srcs = body.querySelectorAll('.rag-src');
-      var i = 0;
-      (function next() {
-        if (i > 0) srcs[i - 1].classList.remove('is-hit');
-        if (i >= srcs.length) {
-          setTimeout(function () {
-            srcs.forEach(function (s) { s.classList.remove('is-hit'); });
-            i = 0;
-            setTimeout(next, 2600);
-          }, 1400);
-          return;
-        }
-        srcs[i].classList.add('is-hit');
-        i++;
-        setTimeout(next, 520);
-      })();
+
+    /* ── FaultLine chaos demo: live event stream + final SLO verdict ─────── */
+    var chaosWs = null;
+    var chaosFinish = null;
+
+    function chaosConsole(card) {
+      return card.querySelector('#chaos-console');
     }
-    // Honest degradation: the pipeline or model is down. Keep the query line,
-    // show why there is no answer, and never leave the terminal blank.
-    function renderRagError(data, question) {
-      var body = document.querySelector('.project-visual--rag .project-visual-body');
-      if (!body) return;
-      var keep = body.querySelector('.rag-q');
-      if (keep && question) keep.textContent = question;
-      var msg = String((data && data.error) || 'model offline');
-      if (msg.length > 140) msg = msg.slice(0, 140) + '…';
-      body.innerHTML = (keep ? keep.outerHTML : '') +
-        '<span class="rag-src">no sources retrieved</span>' +
-        '<span class="rag-answer rag-error">! answer unavailable: ' + esc(msg) + '</span>';
-      body.classList.add('is-live');
+
+    function appendChaosLine(card, text, cls) {
+      var consoleEl = chaosConsole(card);
+      if (!consoleEl) return;
+      var line = document.createElement('span');
+      line.className = 'chaos-line' + (cls ? ' ' + cls : '');
+      line.textContent = text;
+      consoleEl.appendChild(line);
+      while (consoleEl.children.length > 60) consoleEl.removeChild(consoleEl.firstChild);
+      consoleEl.scrollTop = consoleEl.scrollHeight;
+    }
+
+    function resetChaosConsole(card, firstLine) {
+      var consoleEl = chaosConsole(card);
+      if (!consoleEl) return;
+      consoleEl.innerHTML = '';
+      // Hide the previous run's verdict so a re-run never shows a stale one.
+      var verdictEl = card.querySelector('#chaos-verdict');
+      if (verdictEl) { verdictEl.textContent = ''; verdictEl.className = 'chaos-verdict'; }
+      chaosResetChart(card);
+      appendChaosLine(card, firstLine || '$ faultline run --experiment portfolio-demo', '');
+    }
+
+    function renderChaosEvent(card, ev) {
+      // Probe lines: "POST http://127.0.0.1:PORT/api/orders -> 201 12.9ms"
+      var label = (ev.phase || 'info').toUpperCase();
+      var text = ev.message || '';
+      if (typeof ev.ok === 'boolean') {
+        var m = String(text).match(/^(GET|POST)\s+https?:\/\/[^/]+(\S*)\s+->\s+(.*)$/);
+        if (m) {
+          text = m[1] + ' ' + (m[2] || '/') + ' -> ' + m[3];
+        }
+      }
+      var cls = '';
+      if (ev.phase === 'fault') cls = ev.ok === false ? 'chaos-line--err' : 'chaos-line--fault';
+      else if (ev.phase === 'recovery') cls = 'chaos-line--ok';
+      else if (ev.phase === 'evaluate') cls = 'chaos-line--slo';
+      else if (ev.phase === 'target') cls = 'chaos-line--dim';
+      appendChaosLine(card, '[' + label + '] ' + text, cls);
+      // Feed the latency chart with every real probe sample.
+      if (ev.phase === 'baseline' || ev.phase === 'fault' || ev.phase === 'recovery') {
+        chaosPts.push({
+          phase: ev.phase,
+          ms: typeof ev.latency_ms === 'number' ? ev.latency_ms : null,
+          err: ev.ok === false
+        });
+        renderChaosChart(card);
+      }
+    }
+
+    function renderChaosFinal(card, frame) {
+      var verdictEl = card.querySelector('#chaos-verdict');
+      if (frame.error) {
+        appendChaosLine(card, '[ERROR] ' + frame.error, 'chaos-line--err');
+        if (verdictEl) { verdictEl.textContent = 'run failed'; verdictEl.className = 'chaos-verdict is-error'; }
+        if (chaosFinish) chaosFinish(false);
+        return;
+      }
+      var rep = frame.report || {};
+      var fail = 0, total = 0;
+      (rep.slo_results || []).forEach(function (s) { total++; if (!s.passed) fail++; });
+      if (verdictEl) {
+        verdictEl.textContent = 'VERDICT: ' + (rep.verdict === 'pass' ? 'PASS' : 'FAIL') +
+          ' · ' + fail + '/' + total + ' SLO hypotheses breached';
+        verdictEl.className = 'chaos-verdict is-' + (rep.verdict === 'pass' ? 'pass' : 'fail');
+      }
+      // Metric: measured p95 latency in the fault window.
+      var w = (rep.windows || {}).fault;
+      if (w && w.p95_ms != null) setMetric('chaos', Math.round(w.p95_ms) + 'ms');
+      setLive(card, (rep.verdict === 'pass' ? 'PASS · all SLOs held' : 'FAIL · SLO breached') +
+        (w && w.p95_ms != null ? ' · p95 ' + Math.round(w.p95_ms) + 'ms' : ''));
+      // Finalize the per-phase strip from the graded report windows, then
+      // render the SLO hypothesis chips: name, measured vs limit, status.
+      updateChaosPhaseStats(card, rep.windows || {});
+      var sloHost = card.querySelector('#slo-chips');
+      if (sloHost) {
+        var sloHtml = '';
+        (rep.slo_results || []).forEach(function (s) {
+          var checks = (s.checks || []).map(function (c) {
+            if (c.check === 'p95_latency_ms') {
+              return 'p95 ' + (c.actual != null ? c.actual.toFixed(1) : '?') + 'ms vs ≤' + c.limit + 'ms';
+            }
+            if (c.check === 'error_rate') {
+              return 'err ' + (c.actual != null ? Math.round(c.actual * 100) : '?') + '% vs ≤' + Math.round((c.limit || 0) * 100) + '%';
+            }
+            return esc(c.check);
+          }).join(' · ');
+          sloHtml += '<span class="slo-chip is-' + (s.passed ? 'pass' : 'fail') + '">' +
+            '<span class="slo-dot"></span>' + esc(s.name) +
+            (checks ? ' <span class="slo-detail">' + checks + '</span>' : '') + '</span>';
+        });
+        if (sloHtml) sloHost.innerHTML = sloHtml;
+      }
+      if (chaosFinish) chaosFinish(true);
+    }
+
+    /* ── Chaos latency chart (SVG): live probes vs SLO, phase-banded ─────
+       v3: rolling p95 AND p50 traces, peak-sample marker, error count and
+       SLO-headroom in the readout, and a per-phase stats strip driven from
+       the same samples (finalized from the real report at run end).        */
+    var chaosPts = [];
+    var CHAOS_YMAX = 100;   // fixed 0..100ms scale: no rescale jitter mid-run
+    var CHAOS_SLO = 25;     // the p95 SLO the demo grades against (ms)
+    var CHAOS_XCAP = 56;    // x-axis probe capacity for a full demo run
+    var CHAOS_PHASE = {
+      baseline: { line: 'rgba(148,163,184,0.85)', band: 'rgba(148,163,184,0.06)' },
+      fault:    { line: 'rgba(167,139,250,0.95)', band: 'rgba(239,68,68,0.07)' },
+      recovery: { line: 'rgba(134,239,172,0.9)',  band: 'rgba(34,197,94,0.05)' }
+    };
+
+    // Percentile with linear interpolation between closest ranks — the same
+    // method as FaultLine's own SLO math, so the live traces agree with the
+    // graded verdict.
+    function chaosPercentile(sortedAsc, p) {
+      if (!sortedAsc.length) return null;
+      var rank = (p / 100) * (sortedAsc.length - 1);
+      var lo = Math.floor(rank);
+      var hi = Math.min(lo + 1, sortedAsc.length - 1);
+      return sortedAsc[lo] + (sortedAsc[hi] - sortedAsc[lo]) * (rank - lo);
+    }
+
+    function chaosResetChart(card) {
+      chaosPts = [];
+      renderChaosChart(card);
+      updateChaosPhaseStats(card, null);
+      var slo = card ? card.querySelector('#slo-chips') : null;
+      if (slo) slo.innerHTML = '';
+    }
+
+    /* Per-phase stats strip: p95 · probe count · error rate per phase, live
+       from the streamed probes during a run and finalized from the real
+       report windows when it ends. */
+    function updateChaosPhaseStats(card, reportWindows) {
+      if (!card) return;
+      var host = card.querySelector('#chaos-windows');
+      if (!host) return;
+      ['baseline', 'fault', 'recovery'].forEach(function (ph) {
+        var chip = host.querySelector('[data-cw="' + ph + '"]');
+        if (!chip) return;
+        var val = chip.querySelector('.cw-val');
+        if (!val) return;
+        var text;
+        if (reportWindows && reportWindows[ph] && reportWindows[ph].samples) {
+          var w = reportWindows[ph];
+          text = (w.p95_ms != null ? Math.round(w.p95_ms) + 'ms p95' : 'no data') +
+            ' · ' + (w.samples || 0) + ' probes · err ' +
+            (w.error_rate != null ? Math.round(w.error_rate * 100) : 0) + '%';
+        } else {
+          var lats = [], n = 0, bad = 0;
+          for (var i = 0; i < chaosPts.length; i++) {
+            var pt = chaosPts[i];
+            if (pt.phase !== ph) continue;
+            n++;
+            if (pt.err || pt.ms == null) bad++;
+            else lats.push(pt.ms);
+          }
+          if (!n) { val.textContent = '—'; chip.classList.remove('is-on'); return; }
+          var srt = lats.slice().sort(function (a, b) { return a - b; });
+          var p95 = chaosPercentile(srt, 95);
+          text = (p95 != null ? Math.round(p95) + 'ms p95' : 'no latency') +
+            ' · ' + n + ' probes · err ' + Math.round((bad / n) * 100) + '%';
+        }
+        val.textContent = text;
+        chip.classList.add('is-on');
+      });
+    }
+
+    function renderChaosChart(card) {
+      var svg = card.querySelector('#chaos-chart');
+      if (!svg) return;
+      var W = Math.max(320, Math.round(svg.getBoundingClientRect().width)) || 640;
+      var H = 232, L = 42, R = 12, T = 26, B = 22;
+      var iw = W - L - R, ih = H - T - B;
+      function y(ms) { return T + ih * (1 - Math.min(ms, CHAOS_YMAX) / CHAOS_YMAX); }
+      var n = chaosPts.length;
+      var denom = Math.max(CHAOS_XCAP, n);
+      function x(i) { return L + iw * ((i + 0.5) / denom); }
+      var parts = [];
+      // danger zone: everything above the SLO line is red-tinted
+      var sy = y(CHAOS_SLO);
+      parts.push('<rect x="' + L + '" y="' + T + '" width="' + iw + '" height="' + Math.max(0, sy - T).toFixed(1) + '" fill="rgba(239,68,68,0.045)"/>');
+      // minor gridlines every 10ms, labeled majors every 25ms
+      for (var g = 0; g <= CHAOS_YMAX; g += 10) {
+        var gy = y(g);
+        var major = g % 25 === 0;
+        parts.push('<line x1="' + L + '" y1="' + gy.toFixed(1) + '" x2="' + (W - R) + '" y2="' + gy.toFixed(1) + '" stroke="rgba(255,255,255,' + (major ? 0.07 : 0.03) + ')" stroke-width="1"/>');
+        if (major) {
+          parts.push('<text x="' + (L - 6) + '" y="' + (gy + 3).toFixed(1) + '" text-anchor="end" font-size="9" fill="rgba(255,255,255,0.35)">' + g + '</text>');
+        }
+      }
+      parts.push('<text x="' + L + '" y="13" font-size="9" fill="rgba(255,255,255,0.4)">latency (ms)</text>');
+      if (n) {
+        // phase bands + one line per consecutive phase run
+        var i = 0;
+        while (i < n) {
+          var j = i;
+          while (j + 1 < n && chaosPts[j + 1].phase === chaosPts[i].phase) j++;
+          var ph = CHAOS_PHASE[chaosPts[i].phase] || CHAOS_PHASE.baseline;
+          var x0 = L + iw * (i / denom);
+          var x1 = L + iw * ((j + 1) / denom);
+          parts.push('<rect x="' + x0.toFixed(1) + '" y="' + T + '" width="' + Math.max(1, x1 - x0).toFixed(1) + '" height="' + ih + '" fill="' + ph.band + '"/>');
+          if (i > 0) parts.push('<line x1="' + x0.toFixed(1) + '" y1="' + T + '" x2="' + x0.toFixed(1) + '" y2="' + (T + ih) + '" stroke="rgba(255,255,255,0.18)" stroke-width="1" stroke-dasharray="3 4"/>');
+          parts.push('<text x="' + ((x0 + x1) / 2).toFixed(1) + '" y="' + (H - 6) + '" text-anchor="middle" font-size="9" letter-spacing="1.5" fill="' + ph.line + '">' + chaosPts[i].phase.toUpperCase() + '</text>');
+          var d = '';
+          for (var k = i; k <= j; k++) {
+            if (chaosPts[k].ms == null) continue;
+            d += (d ? ' L' : 'M') + x(k).toFixed(1) + ' ' + y(chaosPts[k].ms).toFixed(1);
+          }
+          if (d) parts.push('<path d="' + d + '" fill="none" stroke="' + ph.line + '" stroke-width="1.5" stroke-linejoin="round"/>');
+          i = j + 1;
+        }
+        // rolling percentile traces over every sample so far: p95 (white,
+        // the number the SLO grades) and p50 (cyan, shows median drift)
+        var rp95 = '', rp50 = '', acc = [], y95End = 0, y50End = 0;
+        for (var r = 0; r < n; r++) {
+          if (chaosPts[r].ms == null) continue;
+          acc.push(chaosPts[r].ms);
+          var s2 = acc.slice().sort(function (a, b) { return a - b; });
+          y95End = y(chaosPercentile(s2, 95));
+          y50End = y(chaosPercentile(s2, 50));
+          rp95 += (rp95 ? ' L' : 'M') + x(r).toFixed(1) + ' ' + y95End.toFixed(1);
+          rp50 += (rp50 ? ' L' : 'M') + x(r).toFixed(1) + ' ' + y50End.toFixed(1);
+        }
+        if (rp50) parts.push('<path d="' + rp50 + '" fill="none" stroke="rgba(34,211,238,0.75)" stroke-width="1.4" stroke-dasharray="2 3" stroke-linejoin="round"/>');
+        if (rp95) {
+          parts.push('<path d="' + rp95 + '" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2" stroke-dasharray="4 3" stroke-linejoin="round"/>');
+          parts.push('<text x="' + (x(n - 1) - 6).toFixed(1) + '" y="' + (y95End - 6).toFixed(1) + '" text-anchor="end" font-size="8" fill="rgba(255,255,255,0.55)">p95</text>');
+        }
+        // sample dots with hover tooltips; failed probes get a red X
+        for (var q = 0; q < n; q++) {
+          var pt = chaosPts[q];
+          if (pt.ms == null) {
+            if (pt.err) {
+              var ex = x(q), ey = y(4);
+              parts.push('<line x1="' + (ex - 3).toFixed(1) + '" y1="' + (ey - 3).toFixed(1) + '" x2="' + (ex + 3).toFixed(1) + '" y2="' + (ey + 3).toFixed(1) + '" stroke="#f87171" stroke-width="1.5"/><line x1="' + (ex - 3).toFixed(1) + '" y1="' + (ey + 3).toFixed(1) + '" x2="' + (ex + 3).toFixed(1) + '" y2="' + (ey - 3).toFixed(1) + '" stroke="#f87171" stroke-width="1.5"/>');
+            }
+            continue;
+          }
+          var col = (CHAOS_PHASE[pt.phase] || CHAOS_PHASE.baseline).line;
+          parts.push('<circle cx="' + x(q).toFixed(1) + '" cy="' + y(pt.ms).toFixed(1) + '" r="2.4" fill="' + (pt.ms > CHAOS_SLO ? '#f87171' : col) + '"><title>probe ' + (q + 1) + ' · ' + pt.phase + ' · ' + pt.ms.toFixed(1) + 'ms</title></circle>');
+        }
+        // peak marker: ring + label on the slowest successful probe of the run
+        var peakIdx = -1, peakMs = -1;
+        for (var pk = 0; pk < n; pk++) {
+          if (chaosPts[pk].ms != null && chaosPts[pk].ms > peakMs) { peakMs = chaosPts[pk].ms; peakIdx = pk; }
+        }
+        if (peakIdx >= 0 && n > 2) {
+          var px = x(peakIdx), py = y(peakMs);
+          parts.push('<circle cx="' + px.toFixed(1) + '" cy="' + py.toFixed(1) + '" r="5" fill="none" stroke="rgba(251,191,36,0.9)" stroke-width="1.5"><title>peak probe ' + (peakIdx + 1) + ' · ' + peakMs.toFixed(1) + 'ms</title></circle>');
+          var labelLeft = px > W - R - 40;
+          parts.push('<text x="' + (labelLeft ? px - 8 : px + 8).toFixed(1) + '" y="' + (py - 7).toFixed(1) + '" text-anchor="' + (labelLeft ? 'end' : 'start') + '" font-size="8" fill="rgba(251,191,36,0.95)">peak ' + peakMs.toFixed(0) + 'ms</text>');
+        }
+      }
+      // SLO threshold + label
+      parts.push('<line x1="' + L + '" y1="' + sy.toFixed(1) + '" x2="' + (W - R) + '" y2="' + sy.toFixed(1) + '" stroke="rgba(245,158,11,0.9)" stroke-width="1.2"/>');
+      parts.push('<text x="' + (L + 6) + '" y="' + (sy - 5).toFixed(1) + '" font-size="9" fill="rgba(245,158,11,0.95)">SLO ' + CHAOS_SLO + 'ms</text>');
+      // live readout: rolling p95/p50, last probe, probe count, error count,
+      // and the SLO headroom (or breach) — the numbers the verdict rests on
+      if (n) {
+        var lats = [], errs = 0;
+        for (var u = 0; u < n; u++) {
+          if (chaosPts[u].ms != null) lats.push(chaosPts[u].ms);
+          if (chaosPts[u].err) errs++;
+        }
+        lats.sort(function (a, b) { return a - b; });
+        var rollP95 = chaosPercentile(lats, 95) || 0;
+        var rollP50 = chaosPercentile(lats, 50) || 0;
+        var lastMs = lats.length ? lats[lats.length - 1] : 0;
+        parts.push('<text x="' + (W - R) + '" y="13" text-anchor="end" font-size="10" fill="rgba(255,255,255,0.62)">p95 ' + rollP95.toFixed(1) + 'ms · p50 ' + rollP50.toFixed(1) + 'ms · last ' + lastMs.toFixed(1) + 'ms · ' + n + ' probes' + (errs ? ' · ' + errs + ' err' : '') + '</text>');
+        if (rollP95 > CHAOS_SLO) {
+          parts.push('<text x="' + (W - R) + '" y="24" text-anchor="end" font-size="9" fill="#f87171">SLO breached by ' + (rollP95 - CHAOS_SLO).toFixed(1) + 'ms</text>');
+        }
+      } else {
+        parts.push('<text x="' + (W / 2) + '" y="' + (H / 2) + '" text-anchor="middle" font-size="10" fill="rgba(255,255,255,0.3)">awaiting probes…</text>');
+      }
+      // keep the per-phase stats strip in sync with the same samples
+      updateChaosPhaseStats(card, null);
+      svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+      svg.innerHTML = parts.join('');
     }
 
     function loadDemo(kind, card) {
@@ -944,7 +1411,8 @@
         run.classList.add('is-running');
         run.textContent = kind === 'rag' ? 'thinking…' :
           kind === 'scan' ? 'scanning…' :
-          kind === 'profile' ? 'profiling…' : 'diffing…';
+          kind === 'profile' ? 'profiling…' :
+          kind === 'chaos' ? 'injecting…' : 'diffing…';
       }
       var finish = function (ok) {
         // Keep the running state visible for at least ~1.6s: fast engines
@@ -1003,8 +1471,12 @@
             finish(true);
             return;
           }
+          // Prepare the layout only once the run is known to render, so a
+          // network failure (catch below) leaves the canned rows untouched
+          // and ragReveal() can still fill the terminal.
+          ragPrepareRun(question);
           renderRag(d);
-          var ms = d.latency_ms != null ? Math.round(d.latency_ms) + 'ms' : '';
+          var ms = d.latency_ms != null ? Math.max(1, Math.round(d.latency_ms)) + 'ms' : '';
           // Simulation mode is the zero-model demo default; label it honestly.
           var mode = d.model === 'simulated' ? ' · simulated' : '';
           setLive(card, (d.sources ? d.sources.length : 0) + ' sources' + (ms ? ' · ' + ms : '') + mode);
@@ -1015,6 +1487,66 @@
           // leaving the terminal blank.
           ragReveal();
         }).then(function () { ragBusy = false; });
+      } else if (kind === 'chaos') {
+        setRunning(card, 'injecting…');
+        if (run) run.textContent = 'injecting…';
+        resetChaosConsole(card);
+        chaosFinish = finish;
+        var settled = false;
+        var replayQueue = [];
+        // A final frame (or an explicit failure) settles the run: no further
+        // frames for it are rendered and the safety timeout is disarmed.
+        var applyFrame = function (frame) {
+          if (frame.type === 'event') renderChaosEvent(card, frame);
+          else if (frame.type === 'final') { settled = true; renderChaosFinal(card, frame); }
+        };
+        // Open the stream first: the server replays whatever run is current.
+        try {
+          if (chaosWs) { try { chaosWs.close(); } catch (e) {} chaosWs = null; }
+          chaosWs = new WebSocket(wsUrl('/ws/chaos'));
+          chaosWs.onmessage = function (ev) {
+            var frame;
+            try { frame = JSON.parse(ev.data); } catch (e) { return; }
+            if (frame.type === 'replay') {
+              // Hold the replay until the POST below tells us whether this
+              // click started a new run: a replay of an already-finished run
+              // must not mix its lines (and verdict) into the fresh console.
+              replayQueue = frame.frames || [];
+              return;
+            }
+            if (settled && frame.type === 'final') return;
+            applyFrame(frame);
+          };
+        } catch (e) { /* no WS support: the REST call below still reports it */ }
+        postJSON('/api/chaos/run', {}).then(function (d) {
+          if (!d.started && d.error) {
+            appendChaosLine(card, '[ERROR] ' + d.error, 'chaos-line--err');
+            setOffline(card, 'engine offline');
+            settled = true;
+            finish(false);
+          } else if (!d.started && d.busy) {
+            // A run is already in flight: show the frames we buffered.
+            replayQueue.forEach(applyFrame);
+            replayQueue = [];
+          } else {
+            // A new run just started: drop the stale replay on purpose.
+            replayQueue = [];
+          }
+        }).catch(function () {
+          appendChaosLine(card, '[ERROR] backend unreachable', 'chaos-line--err');
+          setOffline(card, 'backend offline');
+          settled = true;
+          finish(false);
+        });
+        // Safety net: the final frame always arrives when a run completes, so
+        // silence past this deadline means the stream broke — unstick button.
+        setTimeout(function () {
+          if (!settled) {
+            settled = true;
+            appendChaosLine(card, '[ERROR] stream timed out', 'chaos-line--err');
+            finish(false);
+          }
+        }, 60000);
       }
     }
 

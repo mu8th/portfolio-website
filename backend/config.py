@@ -25,12 +25,17 @@ REPO_NAMES: tuple[str, ...] = (
     "performance-profiler",
     "vulnerability-scanner",
     "code-rag",
+    "faultline",
 )
 
 # Sibling repository directories.
 PERF_PROFILER_DIR: Path = SERVER_DIR / "performance-profiler"
 VULN_SCANNER_DIR: Path = SERVER_DIR / "vulnerability-scanner"
 CODE_RAG_DIR: Path = SERVER_DIR / "code-rag"
+FAULTLINE_DIR: Path = SERVER_DIR / "faultline"
+
+#: The FaultLine package directory (imported as a package, not a single module).
+FAULTLINE_PKG: Path = FAULTLINE_DIR / "faultline"
 
 #: The code-rag demo server (separate FastAPI app) that the RAG demo proxies to.
 #: Localhost only by design. Override via the environment if it runs elsewhere.

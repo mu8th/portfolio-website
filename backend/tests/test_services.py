@@ -28,7 +28,7 @@ def test_summary_aggregates_real_metrics() -> None:
     data = summary()
     assert data["status"] == "operational"
     # These mirror the live repo stats, so they must be positive and consistent.
-    assert data["projects_shipped"] == 4
+    assert data["projects_shipped"] == 5
     assert data["files_committed"] > 0
     assert data["lines_of_code"] > 0
     assert data["commits_pushed"] >= 0
@@ -65,23 +65,24 @@ def test_profiling_returns_real_cpu_timings() -> None:
 
 def test_repo_stats_counts_python_files() -> None:
     stats = repo_stats.get_stats()
-    assert stats["projects_shipped"] == 4
+    assert stats["projects_shipped"] == 5
     assert stats["files_committed"] > 0
     assert stats["lines_of_code"] > 0
-    assert len(stats["repos"]) == 4
+    assert len(stats["repos"]) == 5
     # At least one repo should be present and have Python LOC.
     present = [r for r in stats["repos"] if r["present"]]
     assert present, "expected at least one sibling repo to be present"
     assert any(r["py_loc"] > 0 for r in present)
     # The project suites are real and non-trivial. CI only checks out two of
-    # the four sibling repos, so scale the floor by what is actually present:
-    # each present repo ships 15+ tests, plus this backend's own suite (7).
+    # the five sibling repos (faultline is private), so scale the floor by what
+    # is actually present: each present repo ships 15+ tests, plus this
+    # backend's own suite (7).
     assert stats["automated_tests"] >= len(present) * 15 + 5
 
 
 def test_vuln_scan_finds_real_findings() -> None:
     result = vuln_scan.scan_repos()
-    assert result["repos_scanned"] == 4
+    assert result["repos_scanned"] == 5
     # The real repos contain at least one genuine secret (compose passwords),
     # so a real scan must find something.
     assert result["total_findings"] >= 1, "expected at least one real finding"
@@ -91,7 +92,7 @@ def test_vuln_scan_finds_real_findings() -> None:
         assert f["severity_score"] > 0
         valid_repos = (
             "api-contract-tester", "performance-profiler",
-            "vulnerability-scanner", "code-rag",
+            "vulnerability-scanner", "code-rag", "faultline",
         )
         assert f["repo"] in valid_repos
 

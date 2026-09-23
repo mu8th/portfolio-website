@@ -9,7 +9,10 @@ Endpoints
 * ``GET  /api/contract``  -- real OpenAPI breaking-change diff.
 * ``GET  /api/profile``   -- real CPU profiling of a live workload.
 * ``GET  /api/scan``      -- real vulnerability scan of the repos.
+* ``POST /api/chaos/run`` -- start a real FaultLine chaos experiment.
+* ``GET  /api/chaos``     -- last chaos run verdict + SLO evidence.
 * ``WS   /ws/profile``    -- live-streaming profiling metrics.
+* ``WS   /ws/chaos``      -- live-streamed chaos experiment events.
 
 Every data endpoint degrades gracefully: if a real engine or repo is missing
 the endpoint returns an error payload the frontend understands, rather than
@@ -27,7 +30,7 @@ from fastapi.responses import PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 
 from . import config
-from .services import contract_diff, profiling, rag, repo_stats, vuln_scan
+from .services import chaos, contract_diff, profiling, rag, repo_stats, vuln_scan
 from .services.repo_stats import StatsPayload
 
 logger = logging.getLogger("portfolio-backend")
@@ -54,6 +57,7 @@ def health() -> dict:
             "scanner": config.SCANNER_ENGINE.exists(),
             "samples": (config.SAMPLES_DIR / "orders_v1.2.0.yaml").exists(),
             "code_rag": _code_rag_up(),
+            "faultline": (config.FAULTLINE_PKG / "__init__.py").exists(),
         },
     }
 
@@ -123,6 +127,26 @@ def rag_ask(body: dict) -> dict:
                 "sources": [], "model": "n/a", "latency_ms": 0}
 
 
+@app.post("/api/chaos/run")
+async def chaos_run() -> dict:
+    """Start a real FaultLine experiment (one at a time)."""
+    try:
+        return await chaos.start_run()
+    except Exception as exc:  # pragma: no cover - defensive
+        logger.exception("chaos run failed to start")
+        return {"started": False, "busy": False, "error": str(exc)}
+
+
+@app.get("/api/chaos")
+def chaos_status() -> dict:
+    """Return the last chaos verdict + SLO evidence (empty until first run)."""
+    try:
+        return chaos.status()
+    except Exception as exc:  # pragma: no cover - defensive
+        logger.exception("chaos status failed")
+        return {"engine": False, "busy": False, "last": {}, "error": str(exc)}
+
+
 @app.get("/api/summary")
 def summary() -> dict:
     """Return a single aggregate payload for the hero status ticker.
@@ -172,6 +196,20 @@ async def ws_profile(websocket: WebSocket) -> None:
         return
     except Exception:  # pragma: no cover - defensive
         logger.exception("ws stream failed")
+        return
+
+
+@app.websocket("/ws/chaos")
+async def ws_chaos(websocket: WebSocket) -> None:
+    """Stream live chaos experiment frames (replay of an in-flight run first)."""
+    await websocket.accept()
+    try:
+        async for frame in chaos.stream_frames():
+            await websocket.send_json(frame)
+    except WebSocketDisconnect:
+        return
+    except Exception:  # pragma: no cover - defensive
+        logger.exception("chaos ws stream failed")
         return
 
 

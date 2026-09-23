@@ -16,17 +16,18 @@ jobs:
       # profiler.py and vulnerability-scanner's scanner engine), so the tests need those
       # repos available. They are checked out under vendor/ and pointed to via
       # PORTFOLIO_SERVER_DIR, mirroring the local sibling-repo layout.
+      # NOTE: both sibling repos were renamed on GitHub (perf-profiler, vuln-scanner).
       - name: Check out performance-profiler (engine source)
         uses: actions/checkout@v4
         with:
-          repository: mu8th/performance-profiler
+          repository: mu8th/perf-profiler
           path: vendor/performance-profiler
           token: ${{ secrets.SIBLING_REPO_TOKEN }}
 
       - name: Check out vulnerability-scanner (engine source)
         uses: actions/checkout@v4
         with:
-          repository: mu8th/vulnerability-scanner
+          repository: mu8th/vuln-scanner
           path: vendor/vulnerability-scanner
           token: ${{ secrets.SIBLING_REPO_TOKEN }}
 

@@ -19,7 +19,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800;900&family=Geist+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="styles.css?v=20260916j">
 </head>
 <body>
 
@@ -216,8 +216,8 @@
       </div>
       <div class="marquee" data-speed="38s">
         <div class="marquee-track">
-          <span class="marquee-chip">Static Analysis</span><span class="marquee-chip">SQLi Detection</span><span class="marquee-chip">XSS Detection</span><span class="marquee-chip">Secrets Scanning</span><span class="marquee-chip">Profiling</span><span class="marquee-chip">Flame Graphs</span><span class="marquee-chip">Structured Text (IEC 61131-3)</span><span class="marquee-chip">RTAC Libraries &amp; Extensions</span><span class="marquee-chip">Protocol Testing</span><span class="marquee-chip">RAG Pipelines</span><span class="marquee-chip">Embedding Retrieval</span><span class="marquee-chip">Local LLMs (Ollama)</span>
-          <span class="marquee-chip">Static Analysis</span><span class="marquee-chip">SQLi Detection</span><span class="marquee-chip">XSS Detection</span><span class="marquee-chip">Secrets Scanning</span><span class="marquee-chip">Profiling</span><span class="marquee-chip">Flame Graphs</span><span class="marquee-chip">Structured Text (IEC 61131-3)</span><span class="marquee-chip">RTAC Libraries &amp; Extensions</span><span class="marquee-chip">Protocol Testing</span><span class="marquee-chip">RAG Pipelines</span><span class="marquee-chip">Embedding Retrieval</span><span class="marquee-chip">Local LLMs (Ollama)</span>
+          <span class="marquee-chip">Static Analysis</span><span class="marquee-chip">SQLi Detection</span><span class="marquee-chip">XSS Detection</span><span class="marquee-chip">Secrets Scanning</span><span class="marquee-chip">Profiling</span><span class="marquee-chip">Flame Graphs</span><span class="marquee-chip">Structured Text (IEC 61131-3)</span><span class="marquee-chip">RTAC Libraries &amp; Extensions</span><span class="marquee-chip">Protocol Testing</span><span class="marquee-chip">RAG Pipelines</span><span class="marquee-chip">Embedding Retrieval</span><span class="marquee-chip">Local LLMs (Ollama)</span><span class="marquee-chip">vLLM</span>
+          <span class="marquee-chip">Static Analysis</span><span class="marquee-chip">SQLi Detection</span><span class="marquee-chip">XSS Detection</span><span class="marquee-chip">Secrets Scanning</span><span class="marquee-chip">Profiling</span><span class="marquee-chip">Flame Graphs</span><span class="marquee-chip">Structured Text (IEC 61131-3)</span><span class="marquee-chip">RTAC Libraries &amp; Extensions</span><span class="marquee-chip">Protocol Testing</span><span class="marquee-chip">RAG Pipelines</span><span class="marquee-chip">Embedding Retrieval</span><span class="marquee-chip">Local LLMs (Ollama)</span><span class="marquee-chip">vLLM</span>
         </div>
       </div>
     </div>
@@ -284,10 +284,71 @@
 
     <div class="projects-grid">
 
+      <!-- FaultLine: lead card — hypothesis-driven chaos testing with a live SLO graph -->
+      <div class="glow-card project-card project-card--wide project-card--lead reveal">
+        <div class="project-visual project-visual--chaos" aria-hidden="false" data-demo="chaos">
+          <div class="project-visual-bar">
+            <span class="term-dot" style="background:#ef4444"></span>
+            <span class="term-dot" style="background:#eab308"></span>
+            <span class="term-dot" style="background:#22c55e"></span>
+            <span class="project-visual-title">chaos · inject &amp; grade</span>
+            <span class="live-status" aria-live="polite"><span class="live-dot"></span><span class="live-text">offline</span></span>
+            <button class="live-run" type="button">run demo</button>
+          </div>
+          <div class="project-visual-body">
+            <div class="chaos-legend" aria-hidden="true">
+              <span class="lg"><span class="lg-swatch" style="background:rgba(148,163,184,0.85)"></span>baseline</span>
+              <span class="lg"><span class="lg-swatch" style="background:rgba(167,139,250,0.95)"></span>fault</span>
+              <span class="lg"><span class="lg-swatch" style="background:rgba(134,239,172,0.9)"></span>recovery</span>
+              <span class="lg"><span class="lg-dash"></span>rolling p95</span>
+              <span class="lg"><span class="lg-dash lg-cyan"></span>rolling p50</span>
+              <span class="lg"><span class="lg-swatch" style="background:#f87171;border-radius:50%"></span>SLO breach</span>
+              <span class="lg"><span class="lg-ring"></span>peak</span>
+              <span class="lg"><span class="lg-line" style="border-color:rgba(245,158,11,0.9)"></span>SLO 25ms</span>
+            </div>
+            <svg class="chaos-chart" id="chaos-chart" aria-hidden="true"></svg>
+            <div class="chaos-windows" id="chaos-windows" aria-label="Per-phase probe statistics">
+              <span class="cw-chip" data-cw="baseline"><span class="cw-name">baseline</span><span class="cw-val">—</span></span>
+              <span class="cw-chip" data-cw="fault"><span class="cw-name">fault</span><span class="cw-val">—</span></span>
+              <span class="cw-chip" data-cw="recovery"><span class="cw-name">recovery</span><span class="cw-val">—</span></span>
+            </div>
+            <div class="chaos-console" id="chaos-console">
+              <span class="chaos-line">$ faultline run --experiment portfolio-demo</span>
+              <span class="chaos-line chaos-line--dim">[BASELINE] probing shop target every 400ms...</span>
+            </div>
+            <div class="chaos-verdict" id="chaos-verdict"></div>
+            <div class="slo-chips" id="slo-chips" aria-label="SLO hypothesis results"></div>
+          </div>
+        </div>
+        <div class="project-wide-copy">
+          <div>
+            <div class="project-slug"><b>01</b> / FAULTLINE <span class="lead-tag">flagship demo</span></div>
+            <h3 class="project-name">Fault Injection &amp; Chaos Testing Platform</h3>
+            <p class="project-desc">
+              Hypothesis-driven chaos testing: declare SLO hypotheses, inject bounded
+              faults (process kill, CPU/memory pressure, network delay), probe
+              continuously, and grade pass/fail with real evidence. The chart above is
+              the live experiment — real probes against a spawned target while real
+              CPU pressure is injected, graded against the 25ms p95 SLO on every run.
+            </p>
+          </div>
+          <div>
+            <div class="project-metric">
+              <span class="metric-num" data-metric="chaos">-</span>
+              <span class="metric-label">measured p95 under CPU pressure</span>
+            </div>
+            <div class="chip-row">
+              <span class="chip">Python</span><span class="chip">Asyncio</span><span class="chip">Chaos Engineering</span><span class="chip">SLOs</span><span class="chip">FastAPI</span>
+            </div>
+            <span class="project-link project-link--private" title="Private repository - walkthrough available on request">private repo · walkthrough on request -></span>
+          </div>
+        </div>
+      </div>
+
       <!-- Featured: API Contract Tester -->
       <div class="glow-card project-card project-card--featured reveal">
         <div>
-          <div class="project-slug"><b>01</b> / API-CONTRACT-TESTER</div>
+          <div class="project-slug"><b>02</b> / API-CONTRACT-TESTER</div>
           <h3 class="project-name">API Contract Testing Platform</h3>
           <p class="project-desc">
             Self-hosted platform that ingests OpenAPI specs and maintains living contracts:
@@ -312,6 +373,7 @@
             <button class="live-run" type="button">run demo</button>
           </div>
           <div class="project-visual-body">
+            <span class="diff-summary"><b class="s-del">-1 removed</b><b class="s-add">+2 added</b><b class="s-mod">~1 modified</b></span>
             <span class="diff-line diff-ctx hidden-line">paths:</span>
             <span class="diff-line diff-ctx hidden-line">  /orders:</span>
             <span class="diff-line diff-del hidden-line">    get:   # removed</span>
@@ -337,21 +399,19 @@
           </div>
           <div class="project-visual-body">
             <div class="flame-wrap">
-              <div class="flame-row" data-w="100" style="background:linear-gradient(90deg,#8b5cf6,#6d28d9)"></div>
-              <div class="flame-row" data-w="72" style="background:linear-gradient(90deg,#a78bfa,#7c3aed);margin-left:8%"></div>
-              <div class="flame-row" data-w="46" style="background:linear-gradient(90deg,#06b6d4,#0891b2);margin-left:14%"></div>
-              <div class="flame-row" data-w="28" style="background:linear-gradient(90deg,#22d3ee,#06b6d4);margin-left:20%"></div>
-              <div class="flame-row" data-w="14" style="background:linear-gradient(90deg,#ec4899,#be185d);margin-left:24%"></div>
+              <div class="flame-bar-row"><span class="flame-bar-name">db_query</span><div class="flame-bar-track"><div class="flame-bar-fill" style="width:42%;background:linear-gradient(90deg,#a78bfa,#7c3aed)"></div></div><span class="flame-bar-pct">42%</span></div>
+              <div class="flame-bar-row"><span class="flame-bar-name">render_template</span><div class="flame-bar-track"><div class="flame-bar-fill" style="width:36%;background:linear-gradient(90deg,#22d3ee,#06b6d4)"></div></div><span class="flame-bar-pct">36%</span></div>
+              <div class="flame-bar-row"><span class="flame-bar-name">encode_payload</span><div class="flame-bar-track"><div class="flame-bar-fill" style="width:22%;background:linear-gradient(90deg,#ec4899,#be185d)"></div></div><span class="flame-bar-pct">22%</span></div>
             </div>
             <div class="flame-meta">
-              <span>hot path: <b>db.query()</b></span>
-              <span>38% of wall time</span>
+              <span>hot path: <b>db_query()</b></span>
+              <span>42% of CPU</span>
             </div>
           </div>
         </div>
         <div class="project-wide-copy">
           <div>
-            <div class="project-slug"><b>02</b> / PERFORMANCE-PROFILER</div>
+            <div class="project-slug"><b>03</b> / PERFORMANCE-PROFILER</div>
             <h3 class="project-name">Real-time Performance Profiler</h3>
             <p class="project-desc">
               Production-grade Python instrumentation with live metric collection,
@@ -383,18 +443,21 @@
             <button class="live-run" type="button">run demo</button>
           </div>
           <div class="project-visual-body">
+            <div class="scan-window">
             <span class="scan-line" data-finding="SQLi · CRIT">db.execute(f"SELECT * FROM u WHERE id={uid}")</span>
             <span class="scan-line">row = conn.execute(query, params).fetchone()</span>
             <span class="scan-line" data-finding="XSS · HIGH">html = "&lt;div&gt;" + raw_input</span>
             <span class="scan-line">session = requests.Session()</span>
             <span class="scan-line" data-finding="SECRET · MED">api_key = "sk_live_9f8a7b6c"</span>
             <span class="scan-line">cursor.close()</span>
+            </div>
             <div class="scan-progress"><div class="scan-progress-fill"></div></div>
+            <div class="scan-sev"><div class="scan-sev-bar"><span style="width:33.4%;background:#ef4444"></span><span style="width:33.3%;background:#f97316"></span><span style="width:33.3%;background:#eab308"></span></div><span class="scan-sev-labels">1 critical · 1 high · 1 medium</span></div>
           </div>
         </div>
         <div class="project-wide-copy">
           <div>
-            <div class="project-slug"><b>03</b> / VULNERABILITY-SCANNER</div>
+            <div class="project-slug"><b>04</b> / VULNERABILITY-SCANNER</div>
             <h3 class="project-name">Real-time Vulnerability Scanner</h3>
             <p class="project-desc">
               Static analysis engine that detects SQLi, XSS, and leaked secrets,
@@ -427,15 +490,21 @@
           </div>
           <div class="project-visual-body">
             <span class="rag-q">how does the retrieval index rank code chunks?</span>
-            <span class="rag-src hidden-line" data-score="0.87">retrieval.py:42 · 0.87</span>
-            <span class="rag-src hidden-line" data-score="0.63">embed.py:18 · 0.63</span>
-            <span class="rag-src hidden-line" data-score="0.41">ingestion.py:33 · 0.41</span>
+            <span class="rag-stages hidden-line" aria-hidden="true">
+              <span class="rag-stage is-done" data-stage="embed">embed</span><span class="rag-arrow">▸</span><span class="rag-stage is-done" data-stage="retrieve">retrieve top-4</span><span class="rag-arrow">▸</span><span class="rag-stage is-done" data-stage="synthesize">synthesize</span>
+            </span>
+            <span class="rag-srcs">
+              <span class="rag-src hidden-line"><span class="rag-rank">[1]</span> retrieval.py:41–62 query <span class="rag-scorbar"><span style="width:87%"></span></span> <span class="rag-score">0.87</span><span class="rag-snippet">“up to k (position, cosine_score) tuples, highest score first”</span></span>
+              <span class="rag-src hidden-line"><span class="rag-rank">[2]</span> embed.py:33–59 embed_texts <span class="rag-scorbar"><span style="width:63%"></span></span> <span class="rag-score">0.63</span><span class="rag-snippet">“texts are embedded in batches against the local endpoint”</span></span>
+              <span class="rag-src hidden-line"><span class="rag-rank">[3]</span> ingestion.py:107–124 ingest <span class="rag-scorbar"><span style="width:41%"></span></span> <span class="rag-score">0.41</span><span class="rag-snippet">“one chunk per top-level symbol, plus module preambles”</span></span>
+            </span>
             <span class="rag-answer hidden-line">Chunks are embedded and ranked by cosine similarity to the query…</span>
+            <span class="rag-meta hidden-line">answered in 412ms · model dirk-qwen3.8-27b · engine ollama · cited [1] [2] [3]</span>
           </div>
         </div>
         <div class="project-rag-copy">
           <div>
-            <div class="project-slug"><b>04</b> / CODE-RAG</div>
+            <div class="project-slug"><b>05</b> / CODE-RAG</div>
             <h3 class="project-name">Local RAG Code Assistant</h3>
             <p class="project-desc">
               Retrieval-augmented code assistant that answers questions about a
@@ -527,6 +596,6 @@
 
 <button class="to-top" aria-label="Back to top">↑</button>
 
-<script src="script.js"></script>
+<script src="script.js?v=20260916j"></script>
 </body>
 </html>

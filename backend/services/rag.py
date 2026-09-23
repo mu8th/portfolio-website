@@ -69,12 +69,18 @@ def ask(question: str = DEFAULT_QUESTION) -> dict[str, Any]:
             "latency_ms": 0,
         }
 
+    # Pass the line range and snippet through too: the frontend renders each
+    # source as a ranked passage ("file:start–end symbol" + the quoted line),
+    # which is what makes a RAG answer look grounded rather than a file list.
+    # Snippets are capped so a runaway value can't bloat the payload.
     sources = [
         {
             "path": s.get("path", ""),
             "symbol": s.get("symbol", ""),
             "start_line": s.get("start_line", 0),
+            "end_line": s.get("end_line", 0),
             "score": round(float(s.get("score", 0.0)), 3),
+            "snippet": str(s.get("snippet", ""))[:200],
         }
         for s in data.get("sources", [])[:4]
     ]
@@ -88,5 +94,6 @@ def ask(question: str = DEFAULT_QUESTION) -> dict[str, Any]:
         "answer": answer,
         "sources": sources,
         "model": data.get("model", "n/a"),
+        "engine": data.get("engine", ""),
         "latency_ms": round(float(data.get("latency_ms", 0.0)), 0),
     }
