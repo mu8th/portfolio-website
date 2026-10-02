@@ -102,8 +102,11 @@ done
 echo "==> Creating virtual environments and installing dependencies"
 "$UV" venv --allow-existing "$BASE/venvs/portfolio" >/dev/null
 "$UV" pip install --quiet --python "$BASE/venvs/portfolio/bin/python" \
-  fastapi "uvicorn[standard]" pyyaml httpx
-"$BASE/venvs/portfolio/bin/python" -c "import fastapi, uvicorn, yaml, httpx"
+  -r "$BASE/portfolio-website/requirements.txt"
+mkdir -p "$BASE/cache/matplotlib"
+MPLCONFIGDIR="$BASE/cache/matplotlib" PYTHONPATH="$BASE/portfolio-website" \
+  PORTFOLIO_SERVER_DIR="$BASE" "$BASE/venvs/portfolio/bin/python" \
+  -c "import fastapi, uvicorn, yaml, httpx, ezdxf, matplotlib, backend.main"
 "$UV" venv --allow-existing "$BASE/venvs/coderag" >/dev/null
 "$UV" pip install --quiet --python "$BASE/venvs/coderag/bin/python" \
   fastapi "uvicorn[standard]" numpy
@@ -119,6 +122,7 @@ Wants=network-online.target
 [Service]
 WorkingDirectory=/opt/portfolio/portfolio-website
 Environment=PORTFOLIO_SERVER_DIR=/opt/portfolio
+Environment=MPLCONFIGDIR=/opt/portfolio/cache/matplotlib
 ExecStart=/opt/portfolio/venvs/portfolio/bin/python -m uvicorn backend.main:app --host 127.0.0.1 --port 8085
 Restart=always
 RestartSec=3
@@ -155,7 +159,7 @@ CADDY
 echo "==> Starting services"
 systemctl daemon-reload
 systemctl enable caddy portfolio coderag
-systemctl start portfolio coderag
+systemctl restart portfolio coderag
 # apt's postinst may have already started caddy with the distro default config;
 # restart so our Caddyfile is guaranteed to be loaded.
 systemctl restart caddy
@@ -168,22 +172,36 @@ for s in caddy portfolio coderag; do
 done
 
 echo ""
-echo "==> Smoke test through Caddy (uvicorn needs a few seconds to boot)"
+echo "==> Waiting for the portfolio backend (uvicorn needs a few seconds to boot)"
 ok=0
 for _ in $(seq 1 15); do
-  if curl -fsS http://127.0.0.1/api/health >/dev/null 2>&1; then ok=1; break; fi
+  if curl -fsS --max-time 10 http://127.0.0.1:8085/api/health >/dev/null 2>&1; then ok=1; break; fi
   sleep 2
 done
 if [ "$ok" = 1 ]; then
-  curl -fsS http://127.0.0.1/api/health && echo ""
+  curl -fsS --max-time 10 http://127.0.0.1:8085/api/health && echo ""
 else
-  echo "WARNING: /api/health failed, check 'journalctl -u portfolio' and 'journalctl -u caddy'"
+  echo "ERROR: /api/health failed, check 'journalctl -u portfolio'" >&2
+  exit 1
 fi
 
-PUBLIC_IP="$(curl -fsS --max-time 5 https://api.ipify.org 2>/dev/null || true)"
+echo "==> Smoke test through Caddy HTTPS"
+curl -fsS --retry 5 --retry-delay 2 --max-time 15 \
+  --resolve muath.online:443:127.0.0.1 https://muath.online/api/health >/dev/null
+
+echo "==> Smoke test all three CNC demo APIs"
+curl -fsS --max-time 30 -H 'Content-Type: application/json' \
+  -d '{"code":"G21 G90\nG0 X10 Y10\nG1 X20 Y20 F600"}' \
+  http://127.0.0.1:8085/api/cnc/visualize >/dev/null
+curl -fsS --max-time 30 -H 'Content-Type: application/json' \
+  -d '{"sample":"mounting-plate"}' http://127.0.0.1:8085/api/cnc/convert >/dev/null
+curl -fsS --max-time 30 -H 'Content-Type: application/json' \
+  -d '{"sample":"scattered","algorithm":"nearest"}' \
+  http://127.0.0.1:8085/api/cnc/optimize >/dev/null
+
 echo ""
 echo "============================================================"
-echo " Done. Open the site at:  http://${PUBLIC_IP:-<your VM public IP>}/"
+echo " Done. Open the site at:  https://muath.online/"
 echo " Logs:  journalctl -u portfolio -f   |   journalctl -u coderag -f"
 echo " Update later: re-run this script (it is idempotent)."
 echo "============================================================"

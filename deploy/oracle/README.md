@@ -12,6 +12,12 @@ systemd services behind Caddy:
 Both Python services bind to localhost only; Caddy is the sole public entry
 point. Everything restarts automatically on boot and on crash.
 
+Pushes to `main` trigger `.github/workflows/deploy.yml`, which runs this bootstrap
+on the existing Oracle VM. It installs the portfolio's `requirements.txt`
+(including ezdxf and Matplotlib), verifies the app imports, restarts both Python
+services, and checks HTTPS health plus all three CNC demo APIs. A failed smoke
+test fails the deployment workflow.
+
 ## 1. Create the account and instance
 
 1. Sign up at <https://www.oracle.com/cloud/free/> with an Always Free plan.

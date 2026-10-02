@@ -4,9 +4,9 @@ Run from the ``portfolio-website`` directory:
 
     python -m pytest backend/tests -q
 
-These tests assert that every demo service returns *real* data (not canned
-constants): the contract diff finds the expected breaking changes, the profiler
-produces positive CPU timings, and the scanner finds real hits in the repos.
+These tests assert that demo services return computed data: the contract diff
+finds the expected fixture changes, the profiler produces positive CPU timings,
+and the heuristic scanner returns repository pattern matches.
 """
 
 from __future__ import annotations
@@ -29,12 +29,9 @@ def test_summary_aggregates_real_metrics() -> None:
     assert data["status"] == "operational"
     # These mirror the live repo stats, so they must be positive and consistent.
     assert data["projects_shipped"] == 5
-    assert data["files_committed"] > 0
-    assert data["lines_of_code"] > 0
-    assert data["commits_pushed"] >= 0
-    # The real repos contain at least one genuine finding (compose secrets).
-    assert data["vulns_detected"] >= 1
-    assert data["ci"] == "green"
+    assert data["python_lines"] > 0
+    assert data["test_functions"] > 0
+    assert data["potential_matches"] >= 0
 
 
 def test_contract_diff_finds_breaking_changes() -> None:
@@ -66,8 +63,8 @@ def test_profiling_returns_real_cpu_timings() -> None:
 def test_repo_stats_counts_python_files() -> None:
     stats = repo_stats.get_stats()
     assert stats["projects_shipped"] == 5
-    assert stats["files_committed"] > 0
-    assert stats["lines_of_code"] > 0
+    assert stats["repository_files"] > 0
+    assert stats["python_lines"] > 0
     assert len(stats["repos"]) == 5
     # At least one repo should be present and have Python LOC.
     present = [r for r in stats["repos"] if r["present"]]
@@ -77,15 +74,14 @@ def test_repo_stats_counts_python_files() -> None:
     # the five sibling repos (faultline is private), so scale the floor by what
     # is actually present: each present repo ships 15+ tests, plus this
     # backend's own suite (7).
-    assert stats["automated_tests"] >= len(present) * 15 + 5
+    assert stats["test_functions"] >= len(present) * 15 + 5
 
 
-def test_vuln_scan_finds_real_findings() -> None:
+def test_vuln_scan_returns_repository_pattern_matches() -> None:
     result = vuln_scan.scan_repos()
     assert result["repos_scanned"] == 5
-    # The real repos contain at least one genuine secret (compose passwords),
-    # so a real scan must find something.
-    assert result["total_findings"] >= 1, "expected at least one real finding"
+    # These are heuristic matches for human review, not confirmed vulnerabilities.
+    assert result["total_findings"] >= 1, "expected at least one pattern match"
     assert result["findings"], "expected a non-empty findings list"
     for f in result["findings"]:
         assert f["line"] >= 1

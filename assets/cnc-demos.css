@@ -1,0 +1,83 @@
+/* CNC demo workspace. All assets live under the site's public allowlist. */
+.project-index { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.cnc-suite-heading { grid-column: 1 / -1; padding: 2.5rem 0 .5rem; }
+.cnc-eyebrow { color: #67e8f9; font: 600 .66rem var(--font-mono); letter-spacing: .16em; }
+.cnc-suite-heading h3 { margin: .7rem 0; font-size: clamp(1.6rem, 4vw, 2.7rem); letter-spacing: -.04em; line-height: 1.15; }
+.cnc-suite-heading p { max-width: 44rem; color: var(--muted); font-size: .95rem; line-height: 1.7; }
+.cnc-card[data-project="gcode-visualizer"] { --project-accent: #67e8f9; }
+.cnc-card[data-project="dxf-converter"] { --project-accent: #c4b5fd; }
+.cnc-card[data-project="gcode-optimizer"] { --project-accent: #86efac; }
+.cnc-project-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
+.cnc-project-head .project-name { margin-bottom: .65rem; }
+.cnc-project-head .chip-row { margin: .15rem 0 0; justify-content: flex-end; }
+.cnc-card > .project-desc { max-width: 54rem; flex: none; margin-bottom: 1.3rem; }
+.cnc-demo { margin-bottom: 0 !important; background: #0c111a; }
+.cnc-step { color: var(--project-accent); font: 700 .62rem var(--font-mono); letter-spacing: .1em; }
+.cnc-badge { padding: .3rem .55rem; color: #aebacc; border: 1px solid #334052; border-radius: 99px; font: 500 .62rem var(--font-mono); }
+.cnc-badge.is-live { color: #86efac; border-color: #36564c; background: #112822; }
+.cnc-badge.is-error { color: #fda4af; border-color: #74424e; }
+.cnc-controls { display: flex; flex-wrap: wrap; align-items: flex-end; gap: .8rem 1.1rem; padding: 1rem 1.1rem; }
+.cnc-controls label, .cnc-editor > label, .cnc-editor-label, .cnc-details label { display: block; color: #aebacc; font: 500 .65rem var(--font-mono); letter-spacing: .02em; }
+.cnc-controls select, .cnc-controls input[type="number"] { display: block; min-height: 2.35rem; margin-top: .4rem; padding: .45rem .7rem; border: 1px solid #334052; border-radius: 6px; background: #131d2b; color: #edf4ff; font: 500 .73rem var(--font-mono); }
+.cnc-controls input[type="number"] { width: 7.2rem; }
+.cnc-file { max-width: 17rem; }
+.cnc-file input { display: block; max-width: 100%; margin-top: .5rem; color: #aebacc; font-size: .7rem; }
+.cnc-file input::file-selector-button { min-height: 2.2rem; padding: .4rem .6rem; margin-right: .6rem; background: #131d2b; border: 1px solid #334052; border-radius: 6px; color: #edf4ff; cursor: pointer; }
+.cnc-legend { display: flex; gap: 1rem; flex-wrap: wrap; margin-left: auto; padding-bottom: .65rem; font: 500 .63rem var(--font-mono); color: #aebacc; }
+.cnc-key::before { content: ''; display: inline-block; width: .85rem; height: 0; border-top: 2px solid #67e8f9; margin-right: .4rem; vertical-align: middle; }
+.cnc-key--rapid::before { border-top: 2px dashed #fbbf24; }
+.cnc-workspace { display: grid; grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr); border-top: 1px solid #243042; border-bottom: 1px solid #243042; }
+.cnc-stage { min-width: 0; position: relative; background: radial-gradient(ellipse at 50% 40%, #142331, #0c111a 75%); }
+.cnc-stage svg { display: block; width: 100%; height: auto; min-height: 15rem; aspect-ratio: 16 / 9; }
+.cnc-stage-caption { position: absolute; bottom: .7rem; left: 1rem; color: #aebacc; font: 500 .55rem var(--font-mono); letter-spacing: .13em; pointer-events: none; }
+.cnc-editor, .cnc-output { padding: .85rem; border-left: 1px solid #243042; min-width: 0; background: rgba(0, 0, 0, .18); }
+.cnc-editor textarea, .cnc-details textarea { display: block; width: 100%; margin-top: .6rem; padding: .7rem; border: 1px solid #334052; border-radius: 5px; background: #090e16; color: #d5e5f8; font: 400 .72rem/1.7 var(--font-mono); tab-size: 2; resize: vertical; }
+.cnc-editor textarea { height: 17rem; min-height: 10rem; }
+.cnc-output pre { margin-top: .6rem; max-height: 17rem; overflow: auto; white-space: pre; color: #d5e5f8; font: 400 .7rem/1.75 var(--font-mono); padding: .2rem 0; }
+.cnc-scrubber { display: flex; align-items: center; flex-wrap: wrap; gap: .7rem; padding: .8rem 1.1rem; border-bottom: 1px solid #243042; color: #aebacc; font: 500 .65rem var(--font-mono); }
+.cnc-scrubber input { flex: 1; min-width: 6rem; accent-color: #67e8f9; cursor: pointer; }
+.cnc-scrubber output { flex-basis: 100%; color: #d5e5f8; }
+.cnc-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 1rem 1.1rem; gap: .7rem; }
+.cnc-stats > div { padding: .8rem 1rem; border: 1px solid #243042; border-radius: 7px; background: #101a27; min-width: 0; }
+.cnc-stats strong { display: block; color: var(--project-accent); font: 600 clamp(1.1rem, 2.6vw, 1.75rem) var(--font-mono); letter-spacing: -.06em; }
+.cnc-stats span { display: block; margin-top: .3rem; color: #aebacc; font: 400 .64rem/1.45 var(--font-mono); }
+.cnc-status { padding: 0 1.1rem; color: #c8d6e7; font: 400 .73rem/1.6 var(--font-sans); overflow-wrap: anywhere; }
+.cnc-status.is-error { color: #fda4af; }
+.cnc-actions { display: flex; flex-wrap: wrap; gap: .5rem; padding: .8rem 1.1rem; }
+.cnc-actions button { min-height: 2.35rem; padding: .5rem .7rem; border: 1px solid #334052; border-radius: 6px; background: #131d2b; color: #edf4ff; font: 500 .65rem var(--font-mono); cursor: pointer; }
+.cnc-actions button:hover:enabled { border-color: var(--project-accent); }
+.cnc-actions button:disabled, .cnc-demo .live-run:disabled { opacity: .4; cursor: wait; }
+.cnc-demo :focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+.cnc-note { padding: .3rem 1.1rem 1.1rem; color: #aebacc; font: 400 .65rem/1.65 var(--font-sans); }
+.cnc-details { margin: 0 1.1rem .8rem; color: #c8d6e7; font: 500 .7rem var(--font-mono); }
+.cnc-details summary { padding: .55rem 0; cursor: pointer; }
+.cnc-details label { margin-top: .65rem; }
+.cnc-details textarea { height: 10rem; }
+.cnc-comparison { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border-top: 1px solid #243042; border-bottom: 1px solid #243042; }
+.cnc-comparison > div + div { border-left: 1px solid #243042; }
+.cnc-plot-label { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem; padding: .8rem 1rem; background: #101a27; font: 500 .6rem var(--font-mono); }
+.cnc-plot-label span { color: #aebacc; letter-spacing: .1em; }
+.cnc-plot-label strong { color: #edf4ff; font-weight: 600; }
+.cnc-stats--optimization { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.cnc-route { padding: 0 1.1rem .65rem; color: #aebacc; font: 500 .68rem/1.7 var(--font-mono); overflow-wrap: anywhere; }
+.cnc-route b { color: #86efac; }
+@media (max-width: 1000px) { .cnc-project-head { display: block; } .cnc-project-head .chip-row { justify-content: flex-start; margin: 0 0 1rem; } }
+@media (max-width: 900px) { .project-index { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 767px) {
+  .cnc-card { scroll-margin-top: 4.5rem; }
+  .project-index { grid-template-columns: 1fr; }
+  .cnc-workspace, .cnc-comparison { grid-template-columns: 1fr; }
+  .cnc-editor, .cnc-output, .cnc-comparison > div + div { border-left: 0; border-top: 1px solid #243042; }
+  .cnc-stage svg { min-height: 0; }
+  .cnc-editor textarea { height: 11rem; }
+  .cnc-stats, .cnc-stats--optimization { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .45rem; }
+  .cnc-stats > div { padding: .65rem; }
+  .cnc-stats:not(.cnc-stats--optimization) > div:last-child { grid-column: 1 / -1; }
+  .cnc-legend { margin: 0; width: 100%; padding-bottom: 0; }
+  .cnc-demo .project-visual-title { flex-basis: auto; margin-left: auto; font-size: .6rem; }
+  .cnc-demo .cnc-step { font-size: .56rem; }
+  .cnc-demo .cnc-badge { margin-right: auto; }
+  .cnc-demo .live-run { margin-left: 0; }
+  .cnc-controls { padding: .85rem; }
+  .cnc-actions { padding: .8rem; }
+}

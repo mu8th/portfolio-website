@@ -1,14 +1,16 @@
-"""Real OpenAPI breaking-change detection.
+"""Fixture-based OpenAPI compatibility diff for the portfolio demo.
 
 The portfolio's "API Contract Tester" project is meant to maintain *living
 contracts* between an OpenAPI spec and its deployed behaviour. The engine that
-used to back it was a stub (and had a broken import), so this module implements
-the thing for real: it loads two versions of an OpenAPI spec and classifies every
-change that would break an existing client.
+backs that separate project validates live responses against one contract. This
+portfolio demo instead compares two bundled spec versions and classifies the
+change types it supports: endpoint/schema/field removals, field type changes,
+newly required fields, and additive endpoints or fields. It is a reproducible
+fixture comparison, not a complete OpenAPI diff implementation.
 
 The demo diffs the same "Orders API" across two versions (v1.2.0 -> v1.3.0) that
-live in :data:`config.SAMPLES_DIR`, so the visual shows genuine, reproducible
-breaking changes rather than scripted lines.
+live in :data:`config.SAMPLES_DIR`, so the visual shows reproducible changes
+from the bundled documents rather than scripted lines.
 """
 
 from __future__ import annotations

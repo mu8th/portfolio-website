@@ -150,9 +150,14 @@ async def stream_metrics(frames: int = 12, interval: float = 0.5) -> AsyncIterat
     lib = _get_lib()
     hot_fn = _get_workloads()["db_query"]
 
+    # Establish a per-stream baseline. The profiler library keeps cumulative
+    # totals for decorated functions, so starting from zero would make the
+    # first plotted frame include work from earlier demo runs.
+    baseline = lib.get_profiler_data(hot_fn)
+    baseline_result = next(iter(baseline.values()), None)
+    prev_calls = baseline_result.call_count if baseline_result is not None else 0
+    prev_cpu = baseline_result.total_cpu_time if baseline_result is not None else 0.0
     started = time.perf_counter()
-    prev_calls = 0
-    prev_cpu = 0.0
     for i in range(frames):
         hot_fn(120_000)
         res = lib.get_profiler_data(hot_fn)

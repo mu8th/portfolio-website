@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Muath Alsawaier builds backend systems and developer tooling in Python: contract-tested APIs, static analysis engines, and real-time observability. Live demos running the actual repository code.">
+<meta name="description" content="Muath Alsawaier builds backend systems, developer tooling, and CNC geometry tools. Explore eight interactive projects, including G-code visualization, DXF conversion, and toolpath optimization.">
 <meta name="theme-color" content="#020202">
 <meta property="og:title" content="Muath Alsawaier | Backend Systems &amp; Developer Tooling">
-<meta property="og:description" content="Software Engineering student at Washington State University; SWE intern at Schweitzer Engineering Laboratories. Python backend systems and developer tooling, with live demos running the real code.">
+<meta property="og:description" content="Software Engineering student at Washington State University and SWE intern at Schweitzer Engineering Laboratories. Explore backend systems, developer tooling, and interactive project demos.">
 <meta property="og:type" content="website">
 <title>Muath Alsawaier | Backend Systems &amp; Developer Tooling</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%238b5cf6'/%3E%3Ctext x='16' y='22' font-family='monospace' font-size='16' font-weight='bold' fill='white' text-anchor='middle'%3Em%3C/text%3E%3C/svg%3E">
@@ -19,9 +19,12 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800;900&family=Geist+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=20260923a">
+<link rel="stylesheet" href="styles.css?v=20261001">
+<link rel="stylesheet" href="assets/cnc-demos.css?v=20261001">
 </head>
 <body>
+
+<a class="skip-link" href="#projects">Skip to projects</a>
 
 <div class="preloader" id="preloader" aria-hidden="true">
   <div class="preloader-inner">
@@ -56,29 +59,27 @@
     <div class="hero-grid">
       <div>
         <p class="hero-kicker">Muath Alsawaier</p>
-        <h1 class="hero-title-1">I build backend systems &amp;</h1>
-        <h1 class="hero-title-2" data-scramble="developer tooling that proves itself.">developer tooling that proves itself.</h1>
+        <h1 class="hero-headline"><span class="hero-title-1">I build backend systems &amp;</span><span class="hero-title-2" data-scramble="developer tooling that proves itself.">developer tooling that proves itself.</span></h1>
         <p class="hero-desc">
           Software Engineering student at Washington State University and SWE intern
-          at Schweitzer Engineering Laboratories, where I build Python libraries and
-          extensions for RTAC and write controller logic in Structured Text. Every
-          demo on this page runs the actual code from its repository.
+          at Schweitzer Engineering Laboratories. I build Python and protocol tooling,
+          then test it against real behavior. Explore eight interactive projects below.
         </p>
         <div class="hero-buttons">
           <a href="#projects" class="btn btn-primary">View Work</a>
           <a href="https://github.com/mu8th" target="_blank" rel="noopener noreferrer" class="btn btn-ghost">GitHub</a>
           <a href="https://www.linkedin.com/in/muath-alsawaier" target="_blank" rel="noopener noreferrer" class="btn btn-ghost">LinkedIn</a>
         </div>
-        <div class="hero-ticker" id="hero-ticker" aria-label="Live system status">
-          <span class="ticker-item"><span class="ticker-dot"></span><span class="ticker-label">status</span><span class="ticker-val" data-ticker="status">…</span></span>
+        <div class="hero-ticker" id="hero-ticker" aria-label="Live portfolio snapshot">
+          <span class="ticker-item"><span class="ticker-dot"></span><span class="ticker-label">api</span><span class="ticker-val" data-ticker="status">checking</span></span>
           <span class="ticker-sep"></span>
           <span class="ticker-item"><span class="ticker-label">repos</span><span class="ticker-val" data-ticker="repos">…</span></span>
           <span class="ticker-sep"></span>
-          <span class="ticker-item"><span class="ticker-label">loc</span><span class="ticker-val" data-ticker="loc">…</span></span>
+          <span class="ticker-item"><span class="ticker-label">Python lines</span><span class="ticker-val" data-ticker="loc">…</span></span>
           <span class="ticker-sep"></span>
-          <span class="ticker-item"><span class="ticker-label">vulns</span><span class="ticker-val" data-ticker="vulns">…</span></span>
+          <span class="ticker-item"><span class="ticker-label">pattern matches</span><span class="ticker-val" data-ticker="matches">…</span></span>
           <span class="ticker-sep"></span>
-          <span class="ticker-item"><span class="ticker-label">ci</span><span class="ticker-val" data-ticker="ci">…</span></span>
+          <span class="ticker-item"><span class="ticker-label">test functions</span><span class="ticker-val" data-ticker="tests">…</span></span>
         </div>
       </div>
       <div class="glow-card">
@@ -86,8 +87,8 @@
           <span class="term-dot" style="background:#ef4444"></span>
           <span class="term-dot" style="background:#eab308"></span>
           <span class="term-dot" style="background:#22c55e"></span>
-          <div class="term-title">mu8th@portfolio:~</div>
-          <span class="term-hint" id="term-hint">click to type</span>
+          <div class="term-title">mu8th@portfolio: project explorer</div>
+          <span class="term-hint" id="term-hint">preview · click to explore</span>
         </div>
         <div class="terminal-body">
           <div class="term-content" id="term-content" aria-live="off"></div>
@@ -125,9 +126,9 @@
     </p>
     <p class="about-text reveal">
       My focus is backend systems and developer tooling: APIs whose contracts are tested
-      before they ship, static analysis engines that find flaws before production does,
+      before they ship, security tooling that surfaces risky patterns for review,
       and performance data you can watch while it happens. I care about the unglamorous
-      parts of software: the tests, the gates, the measurements. That's what
+      parts of software: the tests, the diagnostics, the measurements. That's what
       separates code that works from code that's proven to work.
     </p>
 
@@ -189,37 +190,11 @@
       </div>
     </div>
 
-    <div class="reveal">
-      <div class="marquee" data-speed="30s">
-        <div class="marquee-track">
-          <span class="marquee-chip">Python</span><span class="marquee-chip">Bash</span><span class="marquee-chip">SQL</span><span class="marquee-chip">T-SQL</span><span class="marquee-chip">TypeScript</span><span class="marquee-chip">C#</span><span class="marquee-chip">C / C++</span><span class="marquee-chip">Structured Text (IEC 61131-3)</span><span class="marquee-chip">JSON</span><span class="marquee-chip">XML</span><span class="marquee-chip">Regular Expressions</span>
-          <span class="marquee-chip">Python</span><span class="marquee-chip">Bash</span><span class="marquee-chip">SQL</span><span class="marquee-chip">T-SQL</span><span class="marquee-chip">TypeScript</span><span class="marquee-chip">C#</span><span class="marquee-chip">C / C++</span><span class="marquee-chip">Structured Text (IEC 61131-3)</span><span class="marquee-chip">JSON</span><span class="marquee-chip">XML</span><span class="marquee-chip">Regular Expressions</span>
-        </div>
-      </div>
-      <div class="marquee reverse" data-speed="36s">
-        <div class="marquee-track">
-          <span class="marquee-chip">FastAPI</span><span class="marquee-chip">SQLAlchemy</span><span class="marquee-chip">Pydantic</span><span class="marquee-chip">REST APIs</span><span class="marquee-chip">OpenAPI 3.x</span><span class="marquee-chip">WebSocket</span><span class="marquee-chip">Uvicorn</span><span class="marquee-chip">SQLite</span><span class="marquee-chip">PostgreSQL</span><span class="marquee-chip">JSON Schema</span>
-          <span class="marquee-chip">FastAPI</span><span class="marquee-chip">SQLAlchemy</span><span class="marquee-chip">Pydantic</span><span class="marquee-chip">REST APIs</span><span class="marquee-chip">OpenAPI 3.x</span><span class="marquee-chip">WebSocket</span><span class="marquee-chip">Uvicorn</span><span class="marquee-chip">SQLite</span><span class="marquee-chip">PostgreSQL</span><span class="marquee-chip">JSON Schema</span>
-        </div>
-      </div>
-      <div class="marquee" data-speed="32s">
-        <div class="marquee-track">
-          <span class="marquee-chip">pytest</span><span class="marquee-chip">ruff</span><span class="marquee-chip">mypy</span><span class="marquee-chip">TDD</span><span class="marquee-chip">80%+ Coverage</span><span class="marquee-chip">Contract Testing</span><span class="marquee-chip">Unit &amp; Integration Tests</span><span class="marquee-chip">Test Automation</span><span class="marquee-chip">Code Review</span><span class="marquee-chip">CI Gates</span>
-          <span class="marquee-chip">pytest</span><span class="marquee-chip">ruff</span><span class="marquee-chip">mypy</span><span class="marquee-chip">TDD</span><span class="marquee-chip">80%+ Coverage</span><span class="marquee-chip">Contract Testing</span><span class="marquee-chip">Unit &amp; Integration Tests</span><span class="marquee-chip">Test Automation</span><span class="marquee-chip">Code Review</span><span class="marquee-chip">CI Gates</span>
-        </div>
-      </div>
-      <div class="marquee reverse" data-speed="34s">
-        <div class="marquee-track">
-          <span class="marquee-chip">Docker</span><span class="marquee-chip">docker-compose</span><span class="marquee-chip">Git</span><span class="marquee-chip">GitHub Actions</span><span class="marquee-chip">Linux</span><span class="marquee-chip">CI/CD</span><span class="marquee-chip">Shell Scripting</span><span class="marquee-chip">Virtual Environments</span><span class="marquee-chip">Reproducible Builds</span><span class="marquee-chip">Dependency Auditing</span>
-          <span class="marquee-chip">Docker</span><span class="marquee-chip">docker-compose</span><span class="marquee-chip">Git</span><span class="marquee-chip">GitHub Actions</span><span class="marquee-chip">Linux</span><span class="marquee-chip">CI/CD</span><span class="marquee-chip">Shell Scripting</span><span class="marquee-chip">Virtual Environments</span><span class="marquee-chip">Reproducible Builds</span><span class="marquee-chip">Dependency Auditing</span>
-        </div>
-      </div>
-      <div class="marquee" data-speed="38s">
-        <div class="marquee-track">
-          <span class="marquee-chip">Static Analysis</span><span class="marquee-chip">SQLi Detection</span><span class="marquee-chip">XSS Detection</span><span class="marquee-chip">Secrets Scanning</span><span class="marquee-chip">Profiling</span><span class="marquee-chip">Flame Graphs</span><span class="marquee-chip">Structured Text (IEC 61131-3)</span><span class="marquee-chip">RTAC Libraries &amp; Extensions</span><span class="marquee-chip">Protocol Testing</span><span class="marquee-chip">RAG Pipelines</span><span class="marquee-chip">Embedding Retrieval</span><span class="marquee-chip">Local LLMs (Ollama)</span><span class="marquee-chip">vLLM</span>
-          <span class="marquee-chip">Static Analysis</span><span class="marquee-chip">SQLi Detection</span><span class="marquee-chip">XSS Detection</span><span class="marquee-chip">Secrets Scanning</span><span class="marquee-chip">Profiling</span><span class="marquee-chip">Flame Graphs</span><span class="marquee-chip">Structured Text (IEC 61131-3)</span><span class="marquee-chip">RTAC Libraries &amp; Extensions</span><span class="marquee-chip">Protocol Testing</span><span class="marquee-chip">RAG Pipelines</span><span class="marquee-chip">Embedding Retrieval</span><span class="marquee-chip">Local LLMs (Ollama)</span><span class="marquee-chip">vLLM</span>
-        </div>
-      </div>
+    <div class="skill-grid reveal" aria-label="Technical skills by area">
+      <div class="skill-card"><span class="skill-card-label">01 / Languages</span><h3>Build across the stack</h3><p>Python · Structured Text (IEC 61131-3) · SQL / T-SQL · C# · C / C++</p></div>
+      <div class="skill-card"><span class="skill-card-label">02 / Backend</span><h3>Design the contract</h3><p>FastAPI · OpenAPI · WebSocket · SQLAlchemy · Pydantic · SQLite · SQL Server</p></div>
+      <div class="skill-card"><span class="skill-card-label">03 / Quality</span><h3>Prove the behavior</h3><p>pytest · Ruff · mypy · GitHub Actions · contract testing · risk-based validation</p></div>
+      <div class="skill-card"><span class="skill-card-label">04 / Systems &amp; AI</span><h3>Measure and retrieve</h3><p>Docker · Modbus · DNP · profiling · chaos testing · RAG · NumPy · Ollama</p></div>
     </div>
   </div>
 </section>
@@ -232,104 +207,83 @@
       <span class="ghost-num">03</span>
       <div class="head-border">
         <h2 class="section-title" data-text="Projects">Projects</h2>
-        <p class="section-sub">[ built, tested &amp; running live ]</p>
+        <p class="section-sub">[ projects &amp; interactive demos ]</p>
       </div>
     </div>
 
     <p class="projects-intro reveal">
-      These are my own projects, built end to end, and so is this site, which runs on
-      the same Python backend that powers its live demos. Every demo below runs the
-      actual code from the repository behind it.
+      Eight projects, from backend systems to CNC geometry. Run an experiment,
+      inspect its result, then explore a three-step workflow for visualizing,
+      converting, and optimizing toolpaths.
     </p>
 
-    <div class="process-label reveal"><span class="process-step">[ how they get built ]</span></div>
-    <div class="process-grid">
-      <div class="glow-card process-card reveal">
-        <div class="process-step">STEP 01</div>
-        <div class="process-title">Write the contract first</div>
-        <p class="process-desc">
-          An API's spec is the source of truth. OpenAPI contracts are defined before
-          implementation, and every change is scored against them: breaking changes
-          fail loudly instead of surfacing in production.
-        </p>
-      </div>
-      <div class="glow-card process-card reveal">
-        <div class="process-step">STEP 02</div>
-        <div class="process-title">Test until it's boring</div>
-        <p class="process-desc">
-          pytest suites run on every commit behind GitHub Actions gates, with ruff and
-          mypy in the loop. The tests encode the contract from step one, so a green
-          build is a statement about behavior, not just about code that runs.
-        </p>
-      </div>
-      <div class="glow-card process-card reveal">
-        <div class="process-step">STEP 03</div>
-        <div class="process-title">Measure before you optimize</div>
-        <p class="process-desc">
-          The profiler attaches to real workloads and streams CPU, wall-clock, and
-          memory per call. Flame graphs show where time actually goes first, so
-          optimization targets evidence instead of guesses.
-        </p>
-      </div>
-      <div class="glow-card process-card reveal">
-        <div class="process-step">STEP 04</div>
-        <div class="process-title">Harden what ships</div>
-        <p class="process-desc">
-          Every release passes the vulnerability scanner for injection flaws and
-          hardcoded secrets. Findings are tracked over time, so security regressions
-          get caught in CI instead of by users.
-        </p>
-      </div>
-    </div>
+    <nav class="project-index reveal" aria-label="Jump to a project">
+      <a href="#project-faultline"><b>01</b><span>FaultLine<small>Resilience under pressure</small></span><span aria-hidden="true">↗</span></a>
+      <a href="#project-contract"><b>02</b><span>API Contract Tester<small>Release compatibility</small></span><span aria-hidden="true">↗</span></a>
+      <a href="#project-rag"><b>03</b><span>CodeRAG<small>Grounded code answers</small></span><span aria-hidden="true">↗</span></a>
+      <a href="#project-scan"><b>04</b><span>Vulnerability Scanner<small>Reviewable signals</small></span><span aria-hidden="true">↗</span></a>
+      <a href="#project-profile"><b>05</b><span>Performance Profiler<small>Measured hot paths</small></span><span aria-hidden="true">↗</span></a>
+      <a href="#project-gcode-visualizer"><b>06</b><span>G-Code Visualizer<small>See every move</small></span><span aria-hidden="true">↗</span></a>
+      <a href="#project-dxf-converter"><b>07</b><span>DXF to G-Code<small>Geometry into motion</small></span><span aria-hidden="true">↗</span></a>
+      <a href="#project-gcode-optimizer"><b>08</b><span>G-Code Optimizer<small>Less travel, same cuts</small></span><span aria-hidden="true">↗</span></a>
+    </nav>
 
     <div class="projects-grid">
 
       <!-- FaultLine: lead card: hypothesis-driven chaos testing with a live SLO graph -->
-      <div class="glow-card project-card project-card--wide project-card--lead reveal">
+      <div class="glow-card project-card project-card--wide project-card--lead reveal" data-project="faultline" id="project-faultline">
         <div class="project-visual project-visual--chaos" aria-hidden="false" data-demo="chaos">
           <div class="project-visual-bar">
             <span class="term-dot" style="background:#ef4444"></span>
             <span class="term-dot" style="background:#eab308"></span>
             <span class="term-dot" style="background:#22c55e"></span>
             <span class="project-visual-title">chaos · inject &amp; grade</span>
-            <span class="live-status" aria-live="polite"><span class="live-dot"></span><span class="live-text">offline</span></span>
+            <span class="live-status" aria-live="polite"><span class="live-dot"></span><span class="live-text">not run</span></span>
             <button class="live-run" type="button">run demo</button>
           </div>
           <div class="project-visual-body">
+            <div class="demo-prompt"><span>THE EXPERIMENT</span><strong>Will the service recover after CPU pressure?</strong></div>
             <div class="chaos-legend" aria-hidden="true">
-              <span class="lg"><span class="lg-swatch" style="background:rgba(148,163,184,0.85)"></span>baseline</span>
-              <span class="lg"><span class="lg-swatch" style="background:rgba(167,139,250,0.95)"></span>fault</span>
-              <span class="lg"><span class="lg-swatch" style="background:rgba(134,239,172,0.9)"></span>recovery</span>
-              <span class="lg"><span class="lg-dash"></span>rolling p95</span>
-              <span class="lg"><span class="lg-dash lg-cyan"></span>rolling p50</span>
-              <span class="lg"><span class="lg-swatch" style="background:#f87171;border-radius:50%"></span>SLO breach</span>
-              <span class="lg"><span class="lg-ring"></span>peak</span>
-              <span class="lg"><span class="lg-line" style="border-color:rgba(245,158,11,0.9)"></span>SLO 25ms</span>
+              <span class="lg"><span class="lg-swatch chaos-swatch--baseline"></span>baseline</span>
+              <span class="lg"><span class="lg-swatch chaos-swatch--fault"></span>CPU pressure</span>
+              <span class="lg"><span class="lg-swatch chaos-swatch--recovery"></span>recovery</span>
+              <span class="lg"><span class="lg-dash"></span>recent p95 · last 12 probes</span>
+              <span class="lg"><span class="lg-line chaos-slo-swatch"></span>25 ms SLO</span>
             </div>
-            <svg class="chaos-chart" id="chaos-chart" aria-hidden="true"></svg>
-            <div class="chaos-windows" id="chaos-windows" aria-label="Per-phase probe statistics">
-              <span class="cw-chip" data-cw="baseline"><span class="cw-name">baseline</span><span class="cw-val">--</span></span>
-              <span class="cw-chip" data-cw="fault"><span class="cw-name">fault</span><span class="cw-val">--</span></span>
-              <span class="cw-chip" data-cw="recovery"><span class="cw-name">recovery</span><span class="cw-val">--</span></span>
+            <p class="chaos-chart-note">Chart, recent p95, and phase summaries include both probes; SLO hypotheses grade <code>POST /api/orders</code> only.</p>
+            <div class="chaos-summary" role="group" aria-label="Current experiment measurements">
+              <span><b data-chaos-summary="p95">—</b><small>recent p95 · last 12</small></span>
+              <span><b data-chaos-summary="probes">0</b><small>probes</small></span>
+              <span><b data-chaos-summary="errors">0</b><small>errors</small></span>
+              <span><b data-chaos-summary="headroom">—</b><small>margin to 25 ms line</small></span>
             </div>
+            <svg class="chaos-chart" id="chaos-chart" role="img" aria-labelledby="chaos-chart-title chaos-chart-desc">
+              <title id="chaos-chart-title">FaultLine probe latency over the experiment</title>
+              <desc id="chaos-chart-desc">Live request latency grouped by baseline, CPU pressure, and recovery. The dashed trace shows the 95th percentile of successful latency samples from the most recent 12 probes; failed requests are counted separately. The chart, recent p95, and phase summaries include both POST /api/orders and GET /health probes. The amber line marks the 25 millisecond threshold; SLO hypotheses grade POST /api/orders only.</desc>
+            </svg>
+            <div class="chaos-windows" id="chaos-windows" aria-label="Per-phase statistics across both probes">
+              <button class="cw-chip" type="button" data-cw="baseline" aria-pressed="false"><span class="cw-name">baseline</span><span class="cw-val">--</span></button>
+              <button class="cw-chip" type="button" data-cw="fault" aria-pressed="false"><span class="cw-name">fault</span><span class="cw-val">--</span></button>
+              <button class="cw-chip" type="button" data-cw="recovery" aria-pressed="false"><span class="cw-name">recovery</span><span class="cw-val">--</span></button>
+            </div>
+            <div class="chaos-phase-insight" data-chaos-phase-insight role="status">Select a phase to inspect what its measurement means.</div>
             <div class="chaos-console" id="chaos-console">
               <span class="chaos-line">$ faultline run --experiment portfolio-demo</span>
-              <span class="chaos-line chaos-line--dim">[BASELINE] probing shop target every 400ms...</span>
+              <span class="chaos-line chaos-line--dim">[PREVIEW] baseline → CPU pressure → recovery</span>
             </div>
-            <div class="chaos-verdict" id="chaos-verdict"></div>
+            <div class="chaos-verdict" id="chaos-verdict" role="status" aria-live="polite"></div>
             <div class="slo-chips" id="slo-chips" aria-label="SLO hypothesis results"></div>
           </div>
         </div>
         <div class="project-wide-copy">
           <div>
-            <div class="project-slug"><b>01</b> / FAULTLINE <span class="lead-tag">flagship demo</span></div>
+            <div class="project-slug"><b>01</b> / FAULTLINE <span class="lead-tag">featured experiment</span></div>
             <h3 class="project-name">Fault Injection &amp; Chaos Testing Platform</h3>
             <p class="project-desc">
-              Hypothesis-driven chaos testing: declare SLO hypotheses, inject bounded
-              faults (process kill, CPU/memory pressure, network delay), probe
-              continuously, and grade pass/fail with real evidence. The chart above is
-              the live experiment: real probes against a spawned target while real
-              CPU pressure is injected, graded against the 25ms p95 SLO on every run.
+              Define an SLO hypothesis, inject a bounded fault, and watch the service
+              respond. This run probes a spawned service through baseline, CPU pressure,
+              and recovery, then grades each phase against a 25 ms p95 threshold.
+              A red FAIL means the experiment found a breach.
             </p>
           </div>
           <div>
@@ -340,155 +294,78 @@
             <div class="chip-row">
               <span class="chip">Python</span><span class="chip">Asyncio</span><span class="chip">Chaos Engineering</span><span class="chip">SLOs</span><span class="chip">FastAPI</span>
             </div>
-            <span class="project-link project-link--private" title="Private repository - walkthrough available on request">private repo · walkthrough on request -></span>
+            <a class="project-link" href="mailto:muath.reed@gmail.com?subject=FaultLine%20walkthrough">Request a FaultLine walkthrough ↗</a>
           </div>
         </div>
       </div>
 
       <!-- Featured: API Contract Tester -->
-      <div class="glow-card project-card project-card--featured reveal">
+      <div class="glow-card project-card project-card--featured reveal" data-project="contract" id="project-contract">
         <div>
           <div class="project-slug"><b>02</b> / API-CONTRACT-TESTER</div>
           <h3 class="project-name">API Contract Testing Platform</h3>
           <p class="project-desc">
-            Self-hosted platform that ingests OpenAPI specs and maintains living contracts:
-            visual diffs, breaking change detection, and commit-level spec history.
+            Enforces OpenAPI specs against live responses and pinpoints field-level drift.
+            This fixture comparison shows how its compatibility view separates breaking
+            changes from additive ones before a release.
           </p>
           <div class="project-metric">
             <span class="metric-num" data-metric="contract">5</span>
-            <span class="metric-label">breaking changes caught in the live diff</span>
+            <span class="metric-label">breaking changes in the bundled fixture diff</span>
           </div>
           <div class="chip-row">
             <span class="chip">Python</span><span class="chip">FastAPI</span><span class="chip">SQLAlchemy</span><span class="chip">OpenAPI</span><span class="chip">Docker</span>
           </div>
-          <a class="project-link" href="https://github.com/mu8th/api-contract-tester" target="_blank" rel="noopener noreferrer">View on GitHub -></a>
+          <a class="project-link" href="https://github.com/mu8th/api-contract-tester" target="_blank" rel="noopener noreferrer" aria-label="View API Contract Tester on GitHub">View on GitHub ↗</a>
         </div>
         <div class="project-visual project-visual--diff" aria-hidden="false" data-demo="contract">
           <div class="project-visual-bar">
             <span class="term-dot" style="background:#ef4444"></span>
             <span class="term-dot" style="background:#eab308"></span>
             <span class="term-dot" style="background:#22c55e"></span>
-            <span class="project-visual-title">contract-diff · v1.2.0 -> v1.3.0</span>
-            <span class="live-status" aria-live="polite"><span class="live-dot"></span><span class="live-text">offline</span></span>
+            <span class="project-visual-title">fixture diff · v1.2.0 → v1.3.0</span>
+            <span class="live-status" aria-live="polite"><span class="live-dot"></span><span class="live-text">not run</span></span>
             <button class="live-run" type="button">run demo</button>
           </div>
           <div class="project-visual-body">
-            <span class="diff-summary"><b class="s-del">-1 removed</b><b class="s-add">+2 added</b><b class="s-mod">~1 modified</b></span>
-            <span class="diff-line diff-ctx hidden-line">paths:</span>
-            <span class="diff-line diff-ctx hidden-line">  /orders:</span>
-            <span class="diff-line diff-del hidden-line">    get:   # removed</span>
-            <span class="diff-line diff-add hidden-line">    post:   # new endpoint</span>
-            <span class="diff-line diff-ctx hidden-line">      responses:</span>
-            <span class="diff-line diff-add hidden-line">        "201": created</span>
-            <span class="diff-line diff-ver hidden-line">  schemas.Order.email: required -> optional</span>
-            <span class="diff-line diff-flag hidden-line">! 2 breaking changes detected</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Performance Profiler: full-width so the flame graph gets a real stage -->
-      <div class="glow-card project-card project-card--wide reveal">
-        <div class="project-visual project-visual--flame" aria-hidden="false" data-demo="profile">
-          <div class="project-visual-bar">
-            <span class="term-dot" style="background:#ef4444"></span>
-            <span class="term-dot" style="background:#eab308"></span>
-            <span class="term-dot" style="background:#22c55e"></span>
-            <span class="project-visual-title">flame · live · 60s window</span>
-            <span class="live-status" aria-live="polite"><span class="live-dot"></span><span class="live-text">offline</span></span>
-            <button class="live-run" type="button">run demo</button>
-          </div>
-          <div class="project-visual-body">
-            <div class="flame-wrap">
-              <div class="flame-bar-row"><span class="flame-bar-name">db_query</span><div class="flame-bar-track"><div class="flame-bar-fill" style="width:42%;background:linear-gradient(90deg,#a78bfa,#7c3aed)"></div></div><span class="flame-bar-pct">42%</span></div>
-              <div class="flame-bar-row"><span class="flame-bar-name">render_template</span><div class="flame-bar-track"><div class="flame-bar-fill" style="width:36%;background:linear-gradient(90deg,#22d3ee,#06b6d4)"></div></div><span class="flame-bar-pct">36%</span></div>
-              <div class="flame-bar-row"><span class="flame-bar-name">encode_payload</span><div class="flame-bar-track"><div class="flame-bar-fill" style="width:22%;background:linear-gradient(90deg,#ec4899,#be185d)"></div></div><span class="flame-bar-pct">22%</span></div>
+            <div class="demo-prompt"><span>THE RELEASE GATE</span><strong>Would this spec update break existing clients?</strong></div>
+            <div class="demo-verdict" data-contract-verdict role="status">Compare the fixtures to inspect release risk.</div>
+            <div class="diff-filters" role="group" aria-label="Filter compatibility changes">
+              <button class="diff-filter is-selected" type="button" data-diff-filter="all" aria-pressed="true">All changes</button>
+              <button class="diff-filter" type="button" data-diff-filter="breaking" aria-pressed="false">Breaking</button>
+              <button class="diff-filter" type="button" data-diff-filter="safe" aria-pressed="false">Additive</button>
             </div>
-            <div class="flame-meta">
-              <span>hot path: <b>db_query()</b></span>
-              <span>42% of CPU</span>
+            <div class="diff-output" aria-live="polite">
+              <span class="diff-summary"><b class="s-del">3 example changes</b><b class="s-mod">v1.2.0 → v1.3.0 fixture</b></span>
+              <span class="diff-line diff-del" data-diff-severity="breaking">DELETE /orders/{order_id} removed <span class="diff-badge breaking">breaking</span></span>
+              <span class="diff-line diff-add" data-diff-severity="additive">POST /orders/{order_id}/refunds added <span class="diff-badge ok">additive</span></span>
+              <span class="diff-line diff-ver" data-diff-severity="breaking">schemas.Order.total: number → integer <span class="diff-badge breaking">breaking</span></span>
+              <span class="diff-line diff-flag">Fixture comparison · v1.2.0 → v1.3.0</span>
             </div>
-          </div>
-        </div>
-        <div class="project-wide-copy">
-          <div>
-            <div class="project-slug"><b>03</b> / PERFORMANCE-PROFILER</div>
-            <h3 class="project-name">Real-time Performance Profiler</h3>
-            <p class="project-desc">
-              Production-grade Python instrumentation with live metric collection,
-              real-time flame graphs, and hot path detection.
-            </p>
-          </div>
-          <div>
-            <div class="project-metric">
-              <span class="metric-num" data-metric="profile">-</span>
-              <span class="metric-label">of CPU on the live hot path</span>
-            </div>
-            <div class="chip-row">
-              <span class="chip">Python</span><span class="chip">FastAPI</span><span class="chip">WebSocket</span><span class="chip">Profiling</span><span class="chip">Flame Graphs</span>
-            </div>
-            <a class="project-link" href="https://github.com/mu8th/performance-profiler" target="_blank" rel="noopener noreferrer">View on GitHub -></a>
-          </div>
-        </div>
-      </div>
-
-      <!-- Vulnerability Scanner: full-width so findings read comfortably -->
-      <div class="glow-card project-card project-card--wide reveal">
-        <div class="project-visual project-visual--scan" aria-hidden="false" data-demo="scan">
-          <div class="project-visual-bar">
-            <span class="term-dot" style="background:#ef4444"></span>
-            <span class="term-dot" style="background:#eab308"></span>
-            <span class="term-dot" style="background:#22c55e"></span>
-            <span class="project-visual-title">scan · src/</span>
-            <span class="live-status" aria-live="polite"><span class="live-dot"></span><span class="live-text">offline</span></span>
-            <button class="live-run" type="button">run demo</button>
-          </div>
-          <div class="project-visual-body">
-            <div class="scan-window">
-            <span class="scan-line" data-finding="SQLi · CRIT">db.execute(f"SELECT * FROM u WHERE id={uid}")</span>
-            <span class="scan-line">row = conn.execute(query, params).fetchone()</span>
-            <span class="scan-line" data-finding="XSS · HIGH">html = "&lt;div&gt;" + raw_input</span>
-            <span class="scan-line">session = requests.Session()</span>
-            <span class="scan-line" data-finding="SECRET · MED">api_key = "sk_live_9f8a7b6c"</span>
-            <span class="scan-line">cursor.close()</span>
-            </div>
-            <div class="scan-progress"><div class="scan-progress-fill"></div></div>
-            <div class="scan-sev"><div class="scan-sev-bar"><span style="width:33.4%;background:#ef4444"></span><span style="width:33.3%;background:#f97316"></span><span style="width:33.3%;background:#eab308"></span></div><span class="scan-sev-labels">1 critical · 1 high · 1 medium</span></div>
-          </div>
-        </div>
-        <div class="project-wide-copy">
-          <div>
-            <div class="project-slug"><b>04</b> / VULNERABILITY-SCANNER</div>
-            <h3 class="project-name">Real-time Vulnerability Scanner</h3>
-            <p class="project-desc">
-              Static analysis engine that detects SQLi, XSS, and leaked secrets,
-              with prioritized, fix-tracked reporting.
-            </p>
-          </div>
-          <div>
-            <div class="project-metric">
-              <span class="metric-num" data-metric="scan">-</span>
-              <span class="metric-label">real findings across the repos</span>
-            </div>
-            <div class="chip-row">
-              <span class="chip">Python</span><span class="chip">Static Analysis</span><span class="chip">Security</span><span class="chip">FastAPI</span><span class="chip">Docker</span>
-            </div>
-            <a class="project-link" href="https://github.com/mu8th/vulnerability-scanner" target="_blank" rel="noopener noreferrer">View on GitHub -></a>
           </div>
         </div>
       </div>
 
       <!-- Code RAG -->
-      <div class="glow-card project-card project-card--rag reveal">
+      <div class="glow-card project-card project-card--rag reveal" data-project="rag" id="project-rag">
         <div class="project-visual project-visual--rag" aria-hidden="false" data-demo="rag">
           <div class="project-visual-bar">
             <span class="term-dot" style="background:#ef4444"></span>
             <span class="term-dot" style="background:#eab308"></span>
             <span class="term-dot" style="background:#22c55e"></span>
-            <span class="project-visual-title">rag · ask your codebase</span>
-            <span class="live-status" aria-live="polite"><span class="live-dot"></span><span class="live-text">offline</span></span>
+            <span class="project-visual-title">code-rag · ask the indexed repo</span>
+            <span class="live-status" aria-live="polite"><span class="live-dot"></span><span class="live-text">not run</span></span>
             <button class="live-run" type="button">run demo</button>
           </div>
           <div class="project-visual-body">
+            <div class="demo-prompt"><span>THE INVESTIGATION</span><strong>Can an answer point back to the code?</strong></div>
+            <div class="rag-presets" role="group" aria-label="Suggested questions"><button type="button" data-rag-question="How does the retrieval index rank code chunks?">Ranking</button><button type="button" data-rag-question="How are code chunks embedded?">Embeddings</button><button type="button" data-rag-question="How does the system build citations?">Citations</button></div>
+            <form class="rag-query" data-rag-form>
+              <label class="sr-only" for="rag-question">Ask a question about the indexed codebase</label>
+              <input class="rag-query-input" id="rag-question" name="question" type="text" maxlength="240" required value="How does the retrieval index rank code chunks?" aria-describedby="rag-query-hint">
+              <button class="rag-ask" type="submit">Ask codebase</button>
+            </form>
+            <span class="rag-query-hint" id="rag-query-hint">Try a question about retrieval, citations, or the embedding pipeline.</span>
             <span class="rag-q">how does the retrieval index rank code chunks?</span>
             <span class="rag-stages hidden-line" aria-hidden="true">
               <span class="rag-stage is-done" data-stage="embed">embed</span><span class="rag-arrow">▸</span><span class="rag-stage is-done" data-stage="retrieve">retrieve top-4</span><span class="rag-arrow">▸</span><span class="rag-stage is-done" data-stage="synthesize">synthesize</span>
@@ -499,12 +376,12 @@
               <span class="rag-src hidden-line"><span class="rag-rank">[3]</span> ingestion.py:107-124 ingest <span class="rag-scorbar"><span style="width:41%"></span></span> <span class="rag-score">0.41</span><span class="rag-snippet">"one chunk per top-level symbol, plus module preambles"</span></span>
             </span>
             <span class="rag-answer hidden-line">Chunks are embedded and ranked by cosine similarity to the query…</span>
-            <span class="rag-meta hidden-line">answered in 412ms · model dirk-qwen3.8-27b · engine ollama · cited [1] [2] [3]</span>
+            <span class="rag-meta hidden-line">illustrative example · ask the codebase for a live answer</span>
           </div>
         </div>
         <div class="project-rag-copy">
           <div>
-            <div class="project-slug"><b>05</b> / CODE-RAG</div>
+            <div class="project-slug"><b>03</b> / CODE-RAG</div>
             <h3 class="project-name">Local RAG Code Assistant</h3>
             <p class="project-desc">
               Retrieval-augmented code assistant that answers questions about a
@@ -517,11 +394,272 @@
             <div class="chip-row">
               <span class="chip">Python</span><span class="chip">FastAPI</span><span class="chip">RAG</span><span class="chip">Embeddings</span><span class="chip">Ollama</span>
             </div>
-            <a class="project-link" href="https://github.com/mu8th/code-rag" target="_blank" rel="noopener noreferrer">View on GitHub -></a>
+            <a class="project-link" href="https://github.com/mu8th/code-rag" target="_blank" rel="noopener noreferrer" aria-label="View CodeRAG on GitHub">View on GitHub ↗</a>
+          </div>
+        </div>
+      </div>
+      <!-- Vulnerability Scanner: full-width so findings read comfortably -->
+      <div class="glow-card project-card project-card--wide reveal" data-project="scan" id="project-scan">
+        <div class="project-visual project-visual--scan" aria-hidden="false" data-demo="scan">
+          <div class="project-visual-bar">
+            <span class="term-dot" style="background:#ef4444"></span>
+            <span class="term-dot" style="background:#eab308"></span>
+            <span class="term-dot" style="background:#22c55e"></span>
+            <span class="project-visual-title">pattern scan · 5 local repos</span>
+            <span class="live-status" aria-live="polite"><span class="live-dot"></span><span class="live-text">not run</span></span>
+            <button class="live-run" type="button">run demo</button>
+          </div>
+          <div class="project-visual-body">
+            <div class="demo-prompt"><span>THE TRIAGE</span><strong>Which pattern matches need a closer look?</strong></div>
+            <div class="scan-note">Illustrative snippets · run the heuristic scan to inspect repository matches</div>
+            <div class="scan-window">
+            <span class="scan-line" data-finding="SQLi pattern · review">db.execute(f"SELECT * FROM u WHERE id={uid}")</span>
+            <span class="scan-line">row = conn.execute(query, params).fetchone()</span>
+            <span class="scan-line" data-finding="XSS pattern · review">html = "&lt;div&gt;" + raw_input</span>
+            <span class="scan-line">session = requests.Session()</span>
+            <span class="scan-line" data-finding="potential secret · review">api_key = "EXAMPLE_TOKEN_DO_NOT_USE"</span>
+            <span class="scan-line">cursor.close()</span>
+            </div>
+            <div class="scan-progress"><div class="scan-progress-fill"></div></div>
+            <div class="scan-detail" data-scan-detail role="status">Select a flagged line after the scan to inspect why it was surfaced.</div>
+          </div>
+        </div>
+        <div class="project-wide-copy">
+          <div>
+            <div class="project-slug"><b>04</b> / VULNERABILITY-SCANNER</div>
+            <h3 class="project-name">Real-time Vulnerability Scanner</h3>
+            <p class="project-desc">
+              A regex-based first pass flags SQLi, XSS, secret, and dependency patterns.
+              Filter real repository matches and inspect a flagged line. Every result
+              remains a review lead until its context is checked.
+            </p>
+          </div>
+          <div>
+            <div class="project-metric">
+              <span class="metric-num" data-metric="scan">-</span>
+              <span class="metric-label">potential pattern matches · review required</span>
+            </div>
+            <div class="chip-row">
+              <span class="chip">Python</span><span class="chip">Static Analysis</span><span class="chip">Security</span><span class="chip">FastAPI</span><span class="chip">Docker</span>
+            </div>
+            <a class="project-link" href="https://github.com/mu8th/vulnerability-scanner" target="_blank" rel="noopener noreferrer" aria-label="View Vulnerability Scanner on GitHub">View on GitHub ↗</a>
           </div>
         </div>
       </div>
 
+      <!-- Performance Profiler: full-width so the flame graph gets a real stage -->
+      <div class="glow-card project-card project-card--wide reveal" data-project="profile" id="project-profile">
+        <div class="project-visual project-visual--flame" aria-hidden="false" data-demo="profile">
+          <div class="project-visual-bar">
+            <span class="term-dot" style="background:#ef4444"></span>
+            <span class="term-dot" style="background:#eab308"></span>
+            <span class="term-dot" style="background:#22c55e"></span>
+            <span class="project-visual-title">profile · CPU share + live samples</span>
+            <span class="live-status" aria-live="polite"><span class="live-dot"></span><span class="live-text">not run</span></span>
+            <button class="live-run" type="button">run demo</button>
+          </div>
+          <div class="project-visual-body">
+            <div class="demo-prompt"><span>THE QUESTION</span><strong>Which function deserves attention first?</strong></div>
+            <div class="profile-view" role="group" aria-label="Profiler measurement"><button class="is-selected" type="button" data-profile-view="share" aria-pressed="true">CPU share</button><button type="button" data-profile-view="average" aria-pressed="false" disabled title="Run the profiler to compare measured values">Average CPU / call</button></div>
+            <div class="flame-wrap" role="group" aria-label="Example CPU share by function" data-profile-bars>
+              <div class="flame-bar-row"><span class="flame-bar-name">db_query</span><div class="flame-bar-track"><div class="flame-bar-fill" style="width:42%;background:linear-gradient(90deg,#a78bfa,#7c3aed)"></div></div><span class="flame-bar-pct">42%</span></div>
+              <div class="flame-bar-row"><span class="flame-bar-name">render_template</span><div class="flame-bar-track"><div class="flame-bar-fill" style="width:36%;background:linear-gradient(90deg,#22d3ee,#06b6d4)"></div></div><span class="flame-bar-pct">36%</span></div>
+              <div class="flame-bar-row"><span class="flame-bar-name">encode_payload</span><div class="flame-bar-track"><div class="flame-bar-fill" style="width:22%;background:linear-gradient(90deg,#ec4899,#be185d)"></div></div><span class="flame-bar-pct">22%</span></div>
+            </div>
+            <div class="flame-meta">
+              <span>hot path: <b>db_query()</b></span>
+              <span>illustrative profile · run for measured values</span>
+            </div>
+            <div class="profile-kpis" role="group" aria-label="Profiler run summary">
+              <span><b data-profile-total>—</b><small>recorded CPU</small></span>
+              <span><b data-profile-calls>—</b><small>calls measured</small></span>
+              <span><b data-profile-target>—</b><small>first target</small></span>
+            </div>
+            <div class="profile-insight" data-profile-insight>Run the profiler to turn the example bars into measured evidence.</div>
+            <div class="profile-stream">
+              <div class="profile-stream-head"><span>CPU per sample</span><span class="profile-stream-value" data-profile-stream>waiting for run</span></div>
+              <svg class="profile-trace" id="profile-trace" role="img" aria-labelledby="profile-trace-title profile-trace-desc">
+                <title id="profile-trace-title">CPU time consumed by each live sample</title>
+                <desc id="profile-trace-desc">A line chart updated from profiler WebSocket frames. The horizontal axis is relative elapsed time in the plotted sample window; the vertical axis is CPU milliseconds per sample.</desc>
+              </svg>
+            </div>
+          </div>
+        </div>
+        <div class="project-wide-copy">
+          <div>
+            <div class="project-slug"><b>05</b> / PERFORMANCE-PROFILER</div>
+            <h3 class="project-name">Real-time Performance Profiler</h3>
+            <p class="project-desc">
+              A stdlib decorator measures CPU time, wall time, and traced memory per
+              call. Switch between total CPU share and average cost per call, then
+              watch fresh CPU samples stream in. The chart shows functions, not a
+              nested call graph.
+            </p>
+          </div>
+          <div>
+            <div class="project-metric">
+              <span class="metric-num" data-metric="profile">-</span>
+              <span class="metric-label">of CPU on the live hot path</span>
+            </div>
+            <div class="chip-row">
+              <span class="chip">Python</span><span class="chip">FastAPI</span><span class="chip">WebSocket</span><span class="chip">Profiling</span><span class="chip">Flame Graphs</span>
+            </div>
+            <a class="project-link" href="https://github.com/mu8th/performance-profiler" target="_blank" rel="noopener noreferrer" aria-label="View Performance Profiler on GitHub">View on GitHub ↗</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="cnc-suite-heading reveal">
+        <span class="cnc-eyebrow">GEOMETRY / MOTION / EFFICIENCY</span>
+        <h3>From a drawing to a better route.</h3>
+        <p>Three Python projects. One CNC workflow. Inspect the moves, turn geometry into G-code, then measure how much travel a better ordering saves.</p>
+      </div>
+
+      <article class="glow-card project-card project-card--wide cnc-card reveal" data-project="gcode-visualizer" id="project-gcode-visualizer">
+        <div class="cnc-project-head">
+          <div><div class="project-slug"><b>06</b> / G-CODE-VISUALIZER</div><h3 class="project-name">G-Code Visualizer</h3></div>
+          <div class="chip-row"><span class="chip">Python</span><span class="chip">Matplotlib</span><span class="chip">G-code parsing</span></div>
+        </div>
+        <p class="project-desc">Parsed and visualized CNC G-code toolpaths with color-coded visualization. Inspect where the tool cuts, where it travels, and how each line changes its route.</p>
+        <div class="project-visual cnc-demo" data-cnc="visualizer">
+          <div class="project-visual-bar">
+            <span class="cnc-step">01 / INSPECT</span><span class="project-visual-title">Read the program. See the path.</span>
+            <span class="cnc-badge" data-cnc-state>sample preview</span><button class="live-run" type="button" data-cnc-run>Visualize</button>
+          </div>
+          <div class="cnc-controls">
+            <label for="cnc-v-sample">Program<select id="cnc-v-sample"><option value="plate">Plate outline</option><option value="arcs">Arcs &amp; circles</option><option value="incremental">Incremental moves</option></select></label>
+            <span class="cnc-legend"><span class="cnc-key cnc-key--cut">Feed / cut</span><span class="cnc-key cnc-key--rapid">Rapid travel</span></span>
+          </div>
+          <div class="cnc-workspace">
+            <div class="cnc-stage"><svg viewBox="0 0 640 360" role="img" aria-label="XY toolpath preview; cyan feed moves and dashed amber rapid travel" data-cnc-plot></svg><span class="cnc-stage-caption">XY PLANE / MILLIMETRES</span></div>
+            <div class="cnc-editor"><label for="cnc-v-code">Editable G-code</label><textarea id="cnc-v-code" spellcheck="false" aria-describedby="cnc-v-support">G21 G90 G17
+G0 Z5
+G0 X10 Y10
+G1 Z-1 F600
+G1 X100 Y10
+G1 X100 Y65
+G1 X10 Y65
+G1 X10 Y10
+G0 Z5
+G0 X30 Y30
+G1 Z-1
+G1 X80 Y30
+G1 X80 Y45
+G1 X30 Y45
+G1 X30 Y30
+G0 Z5
+M30</textarea></div>
+          </div>
+          <div class="cnc-scrubber"><label for="cnc-v-move">Step through moves</label><input id="cnc-v-move" type="range" min="0" max="1" value="0" disabled><output for="cnc-v-move" id="cnc-v-position">Run to inspect source lines</output></div>
+          <div class="cnc-stats" aria-label="Measured toolpath statistics"><div><strong data-cnc-stat="moves">—</strong><span>motion commands</span></div><div><strong data-cnc-stat="cut">—</strong><span>feed distance · mm</span></div><div><strong data-cnc-stat="rapid">—</strong><span>rapid distance · mm</span></div></div>
+          <p class="cnc-status" role="status" data-cnc-status>Edit a program or choose a sample, then visualize its computed toolpath.</p>
+          <div class="cnc-actions"><button type="button" data-cnc-download="svg" disabled>Download Matplotlib plot ↗</button><button type="button" data-cnc-download="gcode" disabled>Download G-code ↗</button></div>
+          <p class="cnc-note" id="cnc-v-support">Python demo rebuilt for this portfolio. Supports G0/G1, XY G2/G3 with I/J, G20/G21, and G90/G91. Distances include Z moves; the plot shows XY. Unsupported operations are reported.</p>
+        </div>
+      </article>
+
+      <article class="glow-card project-card project-card--wide cnc-card reveal" data-project="dxf-converter" id="project-dxf-converter">
+        <div class="cnc-project-head">
+          <div><div class="project-slug"><b>07</b> / DXF-TO-G-CODE</div><h3 class="project-name">DXF to G-Code Converter</h3></div>
+          <div class="chip-row"><span class="chip">Python</span><span class="chip">ezdxf</span><span class="chip">Geometry extraction</span></div>
+        </div>
+        <p class="project-desc">Extracted geometry from DXF files and generated CNC-compatible G-code. This demo reads a real drawing with ezdxf and turns each contour into an inspectable motion program.</p>
+        <div class="project-visual cnc-demo" data-cnc="converter">
+          <div class="project-visual-bar">
+            <span class="cnc-step">02 / CONVERT</span><span class="project-visual-title">Drawing in. Toolpath out.</span>
+            <span class="cnc-badge" data-cnc-state>sample preview</span><button class="live-run" type="button" data-cnc-run>Convert DXF</button>
+          </div>
+          <div class="cnc-controls">
+            <label for="cnc-d-sample">Drawing<select id="cnc-d-sample"><option value="mounting-plate">Mounting plate</option><option value="bracket">L-bracket &amp; arc</option><option value="scattered">Scattered contours</option></select></label>
+            <label for="cnc-d-feed">Feed · mm/min<input id="cnc-d-feed" type="number" min="50" max="3000" step="50" value="600"></label>
+            <label class="cnc-file" for="cnc-d-file">Upload ASCII DXF<input id="cnc-d-file" type="file" accept=".dxf" aria-describedby="cnc-d-support"></label>
+          </div>
+          <div class="cnc-workspace">
+            <div class="cnc-stage"><svg viewBox="0 0 640 360" role="img" aria-label="Converted DXF geometry and rapid travel on the XY plane" data-cnc-plot></svg><span class="cnc-stage-caption">DXF → G21 / G90 / G1</span></div>
+            <div class="cnc-output"><span class="cnc-editor-label">Generated G-code</span><pre tabindex="0" aria-label="Generated G-code" data-cnc-code>Choose a drawing and convert it.
+
+G21  → millimetres
+G90  → absolute coordinates
+G0   → travel between contours
+G1   → trace the geometry</pre></div>
+          </div>
+          <div class="cnc-stats" aria-label="Computed conversion statistics"><div><strong data-cnc-stat="entities">—</strong><span>DXF entities</span></div><div><strong data-cnc-stat="contours">—</strong><span>contours extracted</span></div><div><strong data-cnc-stat="lines">—</strong><span>G-code lines</span></div></div>
+          <p class="cnc-status" role="status" data-cnc-status>Try the mounting plate, then inspect the outline and four circular holes.</p>
+          <div class="cnc-actions"><button type="button" data-cnc-download="dxf">Download sample DXF ↗</button><button type="button" data-cnc-download="gcode" disabled>Download generated G-code ↗</button><button type="button" data-cnc-send disabled>Open in visualizer ↑</button></div>
+          <details class="cnc-details"><summary>Inspect or paste ASCII DXF</summary><label for="cnc-d-text">DXF source (empty uses the selected sample)</label><textarea id="cnc-d-text" spellcheck="false" placeholder="Paste an ASCII DXF here, or upload a file above."></textarea></details>
+          <p class="cnc-note" id="cnc-d-support">Python demo rebuilt for this portfolio. LINE, LWPOLYLINE, ARC, and CIRCLE on the XY plane; mm or unitless drawings (assumed mm). Curves use chords of at most 2°. Geometry preview uses Z5 clearance and Z−1 depth; tooling, compensation, and controller setup require verification before machining.</p>
+        </div>
+      </article>
+
+      <article class="glow-card project-card project-card--wide cnc-card reveal" data-project="gcode-optimizer" id="project-gcode-optimizer">
+        <div class="cnc-project-head">
+          <div><div class="project-slug"><b>08</b> / G-CODE-OPTIMIZER</div><h3 class="project-name">G-Code Optimizer</h3></div>
+          <div class="chip-row"><span class="chip">Python</span><span class="chip">Sorting</span><span class="chip">Nearest neighbor</span></div>
+        </div>
+        <p class="project-desc">Reduced toolpath inefficiencies through sorting and reordering algorithms, with efficiency statistics. Compare the original route with a new ordering and see exactly how much rapid travel it saves.</p>
+        <div class="project-visual cnc-demo" data-cnc="optimizer">
+          <div class="project-visual-bar">
+            <span class="cnc-step">03 / OPTIMIZE</span><span class="project-visual-title">Same contours. A shorter journey.</span>
+            <span class="cnc-badge" data-cnc-state>sample preview</span><button class="live-run" type="button" data-cnc-run>Optimize route</button>
+          </div>
+          <div class="cnc-controls">
+            <label for="cnc-o-sample">Layout<select id="cnc-o-sample"><option value="scattered">Scattered contours</option><option value="mounting-plate">Mounting plate</option><option value="bracket">L-bracket &amp; arc</option></select></label>
+            <label for="cnc-o-algorithm">Algorithm<select id="cnc-o-algorithm"><option value="nearest">Nearest neighbor</option><option value="x-sort">Sort by X position</option></select></label>
+            <span class="cnc-legend"><span class="cnc-key cnc-key--cut">Preserved cuts</span><span class="cnc-key cnc-key--rapid">Rapid travel</span></span>
+          </div>
+          <div class="cnc-comparison">
+            <div><div class="cnc-plot-label"><span>ORIGINAL ORDER</span><strong data-cnc-before-label>Sample preview</strong></div><div class="cnc-stage"><svg viewBox="0 0 640 360" role="img" aria-label="Original order of toolpath contours" data-cnc-before></svg></div></div>
+            <div><div class="cnc-plot-label"><span>OPTIMIZED ORDER</span><strong data-cnc-after-label>Run to compare</strong></div><div class="cnc-stage"><svg viewBox="0 0 640 360" role="img" aria-label="Optimized contour order with reduced rapid travel" data-cnc-after></svg></div></div>
+          </div>
+          <div class="cnc-stats cnc-stats--optimization" aria-label="Computed XY rapid travel comparison"><div><strong data-cnc-stat="saved">—</strong><span>less XY rapid travel</span></div><div><strong data-cnc-stat="distance">—</strong><span>millimetres saved</span></div><div><strong data-cnc-stat="contours">—</strong><span>contours preserved</span></div><div><strong data-cnc-stat="cut">—</strong><span>unchanged XY cut · mm</span></div></div>
+          <div class="cnc-route" data-cnc-route>Run to reveal the new contour order.</div>
+          <p class="cnc-status" role="status" data-cnc-status>Compare two heuristics on the same layout. Savings are computed for your selected example.</p>
+          <div class="cnc-actions"><button type="button" data-cnc-download="gcode" disabled>Download optimized G-code ↗</button><button type="button" data-cnc-send disabled>Inspect optimized path ↑</button></div>
+          <p class="cnc-note">Python demo rebuilt for this portfolio. Reorders independent contours from the selected DXF without changing cut direction or start vertices. Reports XY rapid distance from origin; excludes Z travel and machine time. Keeps the original route if the heuristic is worse. Does not rewrite arbitrary machine programs.</p>
+        </div>
+      </article>
+
+
+    </div>
+
+    <div class="process-label reveal"><span class="process-step">[ how they get built ]</span></div>
+    <div class="process-grid">
+      <div class="glow-card process-card reveal">
+        <div class="process-step">STEP 01</div>
+        <div class="process-title">Write the contract first</div>
+        <p class="process-desc">
+          Declare expected API behavior in OpenAPI, then compare real responses with
+          that contract. The tester surfaces response drift with concrete field-level
+          evidence instead of relying on guesswork.
+        </p>
+      </div>
+      <div class="glow-card process-card reveal">
+        <div class="process-step">STEP 02</div>
+        <div class="process-title">Test until it's boring</div>
+        <p class="process-desc">
+          Each repository's GitHub Actions workflow runs pytest and Ruff on pushes to
+          main and pull requests. The tests exercise behavior; the workflow reports
+          regressions without claiming branch-protection rules it cannot verify.
+        </p>
+      </div>
+      <div class="glow-card process-card reveal">
+        <div class="process-step">STEP 03</div>
+        <div class="process-title">Measure before you optimize</div>
+        <p class="process-desc">
+          The profiler records CPU time, wall-clock time, and traced memory by
+          function call. Those measurements help focus optimization on observed
+          costs instead of guesses.
+        </p>
+      </div>
+      <div class="glow-card process-card reveal">
+        <div class="process-step">STEP 04</div>
+        <div class="process-title">Review before shipping</div>
+        <p class="process-desc">
+          The regex-based scanner flags code patterns worth reviewing, including
+          query construction, markup handling, and secrets. A human checks the
+          surrounding context before treating a match as a vulnerability.
+        </p>
+      </div>
     </div>
   </div>
 </section>
@@ -572,8 +710,8 @@
           <input class="form-input" id="f-subject" type="text" placeholder="Subject" required>
           <label class="form-label" for="f-message">Message</label>
           <textarea class="form-input" id="f-message" rows="4" placeholder="Message" required></textarea>
-          <div class="form-status" role="status" aria-live="polite">Ready to send.</div>
-          <button class="form-submit" type="submit">Send Message</button>
+          <div class="form-status" role="status" aria-live="polite">Opens a draft in your email app.</div>
+          <button class="form-submit" type="submit">Open email draft</button>
         </form>
       </div>
     </div>
@@ -596,6 +734,7 @@
 
 <button class="to-top" aria-label="Back to top">↑</button>
 
-<script src="script.js?v=20260923c"></script>
+<script src="script.js?v=20261001"></script>
+<script src="assets/cnc-demos.js?v=20261001"></script>
 </body>
 </html>

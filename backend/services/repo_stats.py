@@ -1,9 +1,8 @@
 """Live repository statistics.
 
-Pulls real file counts, Python line-of-code totals, test-function counts, and
-commit counts straight from the sibling project repositories so the
-About-section counters are backed by the actual repos rather than hand-typed
-estimates.
+Counts files and Python source lines from sibling repository trees, counts
+pytest-style test function definitions, and totals Git commit history. The
+summary is computed from repository contents rather than hand-entered estimates.
 
 Counts are computed on demand (no cache) so they stay honest as the repos
 change. ``git`` is shelled out for commit counts; if a repo or git is missing
@@ -39,10 +38,10 @@ class StatsPayload(TypedDict):
     """Full stats payload returned by :func:`get_stats`."""
 
     projects_shipped: int
-    files_committed: int
-    lines_of_code: int
-    commits_pushed: int
-    automated_tests: int
+    repository_files: int
+    python_lines: int
+    commit_count: int
+    test_functions: int
     repos: list[RepoStats]
 
 
@@ -153,9 +152,9 @@ def get_stats() -> StatsPayload:
 
     return {
         "projects_shipped": len(config.REPO_NAMES),
-        "files_committed": tot_files,
-        "lines_of_code": tot_loc,
-        "commits_pushed": tot_commits,
-        "automated_tests": tot_tests,
+        "repository_files": tot_files,
+        "python_lines": tot_loc,
+        "commit_count": tot_commits,
+        "test_functions": tot_tests,
         "repos": repos,
     }

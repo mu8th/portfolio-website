@@ -19,7 +19,7 @@ SITE_DIR: Path = BACKEND_DIR.parent
 # Developer home that holds the sibling project repositories
 SERVER_DIR: Path = Path(os.environ.get("PORTFOLIO_SERVER_DIR", str(SITE_DIR.parent)))
 
-#: Repository names used for live stats and the real vulnerability scan.
+#: Repository names used for live counters and heuristic pattern scanning.
 REPO_NAMES: tuple[str, ...] = (
     "api-contract-tester",
     "performance-profiler",

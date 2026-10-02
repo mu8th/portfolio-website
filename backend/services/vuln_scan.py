@@ -1,17 +1,17 @@
-"""Real vulnerability scanning, driven by the vulnerability-scanner's real engine.
+"""Heuristic pattern scanning, driven by the vulnerability-scanner engine.
 
 The vulnerability-scanner project ships a stdlib-only static analysis engine (in
 :data:`config.SCANNER_ENGINE`) that walks a directory tree, applies compiled
 regex heuristics for SQLi, XSS, and hardcoded secrets to every scannable text
 file, and checks pinned dependency versions against a small offline advisory
 table. Its own API is built on top of the same ``scan_codebase()`` function, so
-this service calls that real function once per sibling repository instead of
+this service calls that function once per sibling repository instead of
 re-implementing any of the scanning logic here.
 
-Findings therefore reflect the actual code on disk (for example the
-``POSTGRES_PASSWORD=*** secrets in the compose files), not canned data. The
-engine is loaded lazily on first use so the portfolio backend can start even
-when the vulnerability-scanner checkout is missing; affected endpoints then return an
+The returned matches reflect the code on disk, not canned data, but regex
+heuristics can produce false positives and are not confirmed vulnerabilities.
+The engine is loaded lazily on first use so the portfolio backend can start
+even when the scanner checkout is missing; affected endpoints then return an
 error payload instead of crashing at import time.
 """
 

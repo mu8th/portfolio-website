@@ -1,14 +1,16 @@
 """Portfolio demo backend -- FastAPI application.
 
-Binds to ``127.0.0.1:8085`` by design (local-only, never publicly hosted).
+The app binds to loopback in both local and production deployments. Public
+traffic reaches it only through the site's reverse proxy; do not expose the
+application port directly.
 
 Endpoints
 ---------
 * ``GET  /api/health``    -- liveness probe.
-* ``GET  /api/stats``     -- live repo stats for the About counters.
-* ``GET  /api/contract``  -- real OpenAPI breaking-change diff.
-* ``GET  /api/profile``   -- real CPU profiling of a live workload.
-* ``GET  /api/scan``      -- real vulnerability scan of the repos.
+* ``GET  /api/stats``     -- filesystem, Python-source, test-function, and Git-history counts.
+* ``GET  /api/contract``  -- compatibility diff of bundled OpenAPI fixtures.
+* ``GET  /api/profile``   -- CPU profile of a bounded benchmark workload.
+* ``GET  /api/scan``      -- heuristic pattern scan of the sibling repos.
 * ``POST /api/chaos/run`` -- start a real FaultLine chaos experiment.
 * ``GET  /api/chaos``     -- last chaos run verdict + SLO evidence.
 * ``WS   /ws/profile``    -- live-streaming profiling metrics.
@@ -30,15 +32,17 @@ from fastapi.responses import PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 
 from . import config
+from .cnc_api import router as cnc_router
 from .services import chaos, contract_diff, profiling, rag, repo_stats, vuln_scan
 from .services.repo_stats import StatsPayload
 
 logger = logging.getLogger("portfolio-backend")
 
 app = FastAPI(title="Portfolio Demo Backend", version="1.0.0")
+app.include_router(cnc_router)
 
-# The site is served from localhost:8080 (python -m http.server). Allow it to
-# call the API same-origin-free for local development.
+# Local static-site development uses a separate origin. Production serves the
+# page and API through one reverse-proxy origin, so it does not need CORS.
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:8080", "http://127.0.0.1:8080"],
@@ -81,13 +85,14 @@ def stats() -> StatsPayload:
         return repo_stats.get_stats()
     except Exception:  # pragma: no cover - defensive
         logger.exception("stats failed")
-        return {"projects_shipped": 0, "files_committed": 0,
-                "lines_of_code": 0, "commits_pushed": 0, "repos": []}
+        return {"projects_shipped": 0, "repository_files": 0,
+                "python_lines": 0, "commit_count": 0,
+                "test_functions": 0, "repos": []}
 
 
 @app.get("/api/contract")
 def contract() -> dict:
-    """Return the real OpenAPI breaking-change diff."""
+    """Return the compatibility diff for the bundled OpenAPI fixtures."""
     try:
         return contract_diff.diff_specs().to_dict()
     except Exception as exc:  # pragma: no cover - defensive
@@ -97,7 +102,7 @@ def contract() -> dict:
 
 @app.get("/api/profile")
 def profile(iterations: int = 5) -> dict:
-    """Return a real profiling benchmark of the live workload."""
+    """Profile the demo's bounded benchmark workload."""
     try:
         return profiling.run_benchmark(iterations=max(1, min(iterations, 50)))
     except Exception as exc:  # pragma: no cover - defensive
@@ -107,7 +112,7 @@ def profile(iterations: int = 5) -> dict:
 
 @app.get("/api/scan")
 def scan(max_findings: int = 25) -> dict:
-    """Return a real vulnerability scan of the sibling repos."""
+    """Return heuristic pattern matches from a scan of sibling repos."""
     try:
         return vuln_scan.scan_repos(max_findings=max(1, min(max_findings, 200)))
     except Exception as exc:  # pragma: no cover - defensive
@@ -151,37 +156,37 @@ def chaos_status() -> dict:
 def summary() -> dict:
     """Return a single aggregate payload for the hero status ticker.
 
-    Bundles the live repo stats and a real vulnerability count into one cheap
-    call so the frontend can render a "system status" strip without fanning out
-    to several endpoints. Each field degrades to a safe default if its source
-    is unavailable, so the ticker always has something honest to show.
+    Bundles live repo statistics and heuristic scanner match counts into one
+    request for the hero snapshot. Scanner matches are not confirmed
+    vulnerabilities. Each field degrades to a safe default if its source is
+    unavailable.
     """
     stats: StatsPayload = {
         "projects_shipped": 0,
-        "files_committed": 0,
-        "lines_of_code": 0,
-        "commits_pushed": 0,
+        "repository_files": 0,
+        "python_lines": 0,
+        "commit_count": 0,
+        "test_functions": 0,
         "repos": [],
     }
-    vuln_total = 0
+    potential_matches = 0
     try:
         stats = repo_stats.get_stats()
     except Exception:  # pragma: no cover - defensive
         logger.exception("summary stats failed")
     try:
-        vuln_total = int(vuln_scan.scan_repos(max_findings=1).get("total_findings", 0))
+        potential_matches = int(
+            vuln_scan.scan_repos(max_findings=1).get("total_findings", 0)
+        )
     except Exception:  # pragma: no cover - defensive
         logger.exception("summary scan failed")
 
     return {
         "status": "operational",
         "projects_shipped": int(stats.get("projects_shipped", 0) or 0),
-        "files_committed": int(stats.get("files_committed", 0) or 0),
-        "lines_of_code": int(stats.get("lines_of_code", 0) or 0),
-        "commits_pushed": int(stats.get("commits_pushed", 0) or 0),
-        "vulns_detected": vuln_total,
-        "ci": "green",
-        "uptime": "24/7",
+        "python_lines": int(stats.get("python_lines", 0) or 0),
+        "test_functions": int(stats.get("test_functions", 0) or 0),
+        "potential_matches": potential_matches,
     }
 
 
