@@ -19,7 +19,7 @@ jobs:
           umask 077
           printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan -H 159.54.168.73 >> ~/.ssh/known_hosts 2>/dev/null
+          ssh-keyscan -H 163.192.39.64 >> ~/.ssh/known_hosts 2>/dev/null
         env:
           DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
 
@@ -29,5 +29,5 @@ jobs:
         # flock serializes concurrent deploys (e.g. a push to every repo).
         run: |
           ssh -i ~/.ssh/deploy_key -o BatchMode=yes -o ConnectTimeout=15 \
-            ubuntu@159.54.168.73 \
+            ubuntu@163.192.39.64 \
             'flock /var/lock/muath-deploy.lock -c "curl -fsSL https://raw.githubusercontent.com/mu8th/portfolio-website/main/deploy/oracle/setup.sh | sudo bash"'
