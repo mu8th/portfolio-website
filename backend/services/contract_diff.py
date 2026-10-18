@@ -259,7 +259,7 @@ def _diff(old: dict[str, Any], new: dict[str, Any], old_text: str, new_text: str
     for path, method in sorted(old_eps - new_eps):
         result.changes.append(Change(
             "removed_endpoint", "breaking", f"{method.upper()} {path}",
-            f"{method.upper()} {path} removed",
+            "endpoint removed",
             f"Clients calling {method.upper()} {path} now get 404 or 405.",
             old_line=old_lines.get(("paths", path, method)),
             new_line=new_lines.get(("paths", path)),
@@ -267,7 +267,7 @@ def _diff(old: dict[str, Any], new: dict[str, Any], old_text: str, new_text: str
     for path, method in sorted(new_eps - old_eps):
         result.changes.append(Change(
             "added_endpoint", "non-breaking", f"{method.upper()} {path}",
-            f"{method.upper()} {path} added",
+            "new endpoint",
             "Existing clients never call it, so nothing changes for them.",
             new_line=new_lines.get(("paths", path, method)),
         ))

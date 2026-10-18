@@ -157,13 +157,16 @@ def test_matplotlib_export_and_api_validation() -> None:
         transport = httpx.ASGITransport(app=app)
         async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
             valid = await client.post("/api/cnc/visualize",
-                                      json={"code": "G0 X10\nG1 Y10 F600"})
+                                      json={"code": "G0 X10\nG1 Y10 F600", "export": True})
             assert valid.status_code == 200
             assert "<svg" in valid.json()["svg"]
+            quick = await client.post("/api/cnc/visualize", json={"code": "G0 X10\nG1 Y10 F600"})
+            assert "svg" not in quick.json()
             invalid = await client.post("/api/cnc/visualize", json={"code": "garbage"})
             assert invalid.status_code == 422
             for path, body in [("convert", {"feed": 0}), ("convert", {"dxf": "invalid"}),
-                               ("optimize", {"algorithm": "random"})]:
+                               ("optimize", {"algorithm": "random"}),
+                               ("optimize", {"layout": "random", "count": 99})]:
                 assert (await client.post(f"/api/cnc/{path}", json=body)).status_code == 422
             assert (await client.get("/api/cnc/sample/scattered")).status_code == 200
             assert (await client.get("/api/cnc/sample/unknown")).status_code == 404

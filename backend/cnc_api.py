@@ -13,6 +13,8 @@ router = APIRouter(prefix="/api/cnc", tags=["CNC demos"])
 
 class GCodeInput(BaseModel):
     code: str = Field(min_length=1, max_length=100_000)
+    #: Render the Matplotlib SVG too (slower; the page asks only for downloads).
+    export: bool = False
 
 
 class DrawingInput(BaseModel):
@@ -46,7 +48,7 @@ def sample(name: str) -> PlainTextResponse:
 @router.post("/visualize")
 def visualize(body: GCodeInput) -> dict:
     try:
-        return cnc.visualize(body.code)
+        return cnc.visualize(body.code, export=body.export)
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
 

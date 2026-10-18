@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://muath.online/sitemap.xml
