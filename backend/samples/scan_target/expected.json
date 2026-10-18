@@ -1,0 +1,143 @@
+{
+  "about": "Labels for the deliberately vulnerable scan target. 'flaw' lines must be flagged with that category; 'safe' lines are look-alikes that must not be flagged. Lines are located by the quoted text, so edits to the files do not silently shift labels.",
+  "lines": [
+    {
+      "file": "shop/db.py",
+      "text": "query = \"SELECT * FROM users WHERE name = '\" + name",
+      "flaw": "sqli",
+      "why": "User input concatenated into SQL."
+    },
+    {
+      "file": "shop/db.py",
+      "text": "WHERE id = ?\", (order_id,)",
+      "safe": true,
+      "why": "Parameterized query: the driver binds order_id."
+    },
+    {
+      "file": "shop/db.py",
+      "text": "cur.execute(f\"DELETE FROM carts",
+      "flaw": "sqli",
+      "why": "f-string interpolates cart_id into SQL."
+    },
+    {
+      "file": "shop/db.py",
+      "text": "# update the balance from the payments table",
+      "safe": true,
+      "why": "A comment, not code."
+    },
+    {
+      "file": "shop/db.py",
+      "text": "sql = \"UPDATE accounts",
+      "safe": true,
+      "why": "Static SQL with %s placeholders, executed with parameters."
+    },
+    {
+      "file": "shop/db.py",
+      "text": "\"Total: {} cents\".format(total)",
+      "safe": true,
+      "why": "str.format on a non-SQL string."
+    },
+    {
+      "file": "shop/db.py",
+      "text": "LIKE '%\" + term",
+      "flaw": "sqli",
+      "why": "Search term concatenated into a LIKE clause."
+    },
+    {
+      "file": "shop/db.py",
+      "text": "BASE_QUERY = \"SELECT * FROM users \"",
+      "safe": true,
+      "why": "A static SQL prefix on its own is safe."
+    },
+    {
+      "file": "shop/db.py",
+      "text": "cur.execute(BASE_QUERY + clause)",
+      "flaw": "sqli",
+      "why": "The status value reaches SQL across two lines. Line-based rules cannot follow it; taint analysis (Semgrep, CodeQL) can. This miss is a known limit, kept here on purpose."
+    },
+    {
+      "file": "shop/config.py",
+      "text": "DB_PASSWORD = os.environ",
+      "safe": true,
+      "why": "Read from the environment, not hardcoded."
+    },
+    {
+      "file": "shop/config.py",
+      "text": "PAYMENTS_API_KEY = \"demo-key",
+      "flaw": "secrets",
+      "why": "API key committed in source."
+    },
+    {
+      "file": "shop/config.py",
+      "text": "aws_access_key_id = \"AKIA",
+      "flaw": "secrets",
+      "why": "AWS access key ID shape."
+    },
+    {
+      "file": "shop/config.py",
+      "text": "SMTP_PASSWORD = None",
+      "safe": true,
+      "why": "No value assigned."
+    },
+    {
+      "file": "shop/config.py",
+      "text": "if password == stored",
+      "safe": true,
+      "why": "A comparison, not an assignment."
+    },
+    {
+      "file": "shop/config.py",
+      "text": "\"password\": form.password",
+      "safe": true,
+      "why": "A variable reference, not a literal."
+    },
+    {
+      "file": "static/app.js",
+      "text": "list.innerHTML = '';",
+      "safe": true,
+      "why": "Clearing an element."
+    },
+    {
+      "file": "static/app.js",
+      "text": "'<li>Results for ' + query",
+      "flaw": "xss",
+      "why": "Search query concatenated into HTML."
+    },
+    {
+      "file": "static/app.js",
+      "text": "row.innerHTML = `<td>${esc(item.name)}",
+      "safe": true,
+      "why": "Every interpolation is escaped."
+    },
+    {
+      "file": "static/app.js",
+      "text": "`Welcome back, ${user.name}`",
+      "flaw": "xss",
+      "why": "Unescaped user name in HTML."
+    },
+    {
+      "file": "static/app.js",
+      "text": "eval(location.hash",
+      "flaw": "xss",
+      "why": "eval of a URL fragment the attacker controls."
+    },
+    {
+      "file": "static/app.js",
+      "text": "'<p class=\"empty\">No results</p>'",
+      "safe": true,
+      "why": "A fixed string."
+    },
+    {
+      "file": "requirements.txt",
+      "text": "flask==1.0.2",
+      "flaw": "outdated_deps",
+      "why": "Below the patched Flask 2.0.1 (CVE-2023-30861)."
+    },
+    {
+      "file": "requirements.txt",
+      "text": "requests==2.31.0",
+      "safe": true,
+      "why": "Above the minimum safe version."
+    }
+  ]
+}

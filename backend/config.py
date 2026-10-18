@@ -33,6 +33,12 @@ PERF_PROFILER_DIR: Path = SERVER_DIR / "performance-profiler"
 VULN_SCANNER_DIR: Path = SERVER_DIR / "vulnerability-scanner"
 CODE_RAG_DIR: Path = SERVER_DIR / "code-rag"
 FAULTLINE_DIR: Path = SERVER_DIR / "faultline"
+API_TESTER_DIR: Path = SERVER_DIR / "api-contract-tester"
+
+#: Writable state that should survive restarts (the last FaultLine run per
+#: scenario). Defaults to ``<server dir>/cache``; override with
+#: ``PORTFOLIO_CACHE_DIR``.
+CACHE_DIR: Path = Path(os.environ.get("PORTFOLIO_CACHE_DIR", str(SERVER_DIR / "cache")))
 
 #: The FaultLine package directory (imported as a package, not a single module).
 FAULTLINE_PKG: Path = FAULTLINE_DIR / "faultline"
@@ -46,6 +52,7 @@ CODE_RAG_PORT: int = int(os.environ.get("CODE_RAG_PORT", "8090"))
 # actual code.
 PROFILER_LIB: Path = PERF_PROFILER_DIR / "profiler.py"
 SCANNER_ENGINE: Path = VULN_SCANNER_DIR / "backend" / "services" / "scanner.py"
+CONTRACT_ENGINE: Path = API_TESTER_DIR / "backend" / "services" / "contract_enforcer.py"
 
 # Bundled OpenAPI sample specs used by the contract-diff demo.
 SAMPLES_DIR: Path = BACKEND_DIR / "samples"

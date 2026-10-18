@@ -10,54 +10,75 @@ application port directly.
 | Endpoint          | Backs                                        | Data source |
 |-------------------|----------------------------------------------|-------------|
 | `GET /api/health` | Backend liveness                             | Engine presence |
-| `GET /api/stats`  | Repository files, Python source lines, Git commit totals, test-function definitions | Sibling repository trees, Git history, and test files |
-| `GET /api/summary` | Hero snapshot | Repository counters plus heuristic scanner match count |
-| `GET /api/contract` | OpenAPI compatibility demo | Reproducible diff of bundled Orders API v1.2.0 and v1.3.0 fixtures |
-| `GET /api/profile`  | Performance profile demo | CPU timings from the performance-profiler `@profile` decorator |
-| `GET /api/scan`     | Pattern-scan demo | Regex-based scan of the repositories; results are potential matches, not confirmed vulnerabilities |
-| `POST /api/rag`     | Code-RAG demo | Proxied call to the code-rag server; retrieval answers are simulated or model-backed depending on its configuration |
-| `POST /api/chaos/run`, `WS /ws/chaos` | FaultLine demo | Starts and streams a bounded local experiment with phase-level SLO grading |
-| `WS /ws/profile`   | Profiler live stream | Live metric frames from the same decorator |
+| `GET /api/stats`  | Repository files, Python lines, commits, tests, CI workflows | Sibling repository trees and Git history |
+| `GET /api/summary` | Hero snapshot (cached 10 min) | Live demo count, Python lines, test functions, CI workflows |
+| `GET /api/contract` | Contract demo: v1.2.0 -> v1.3.0 diff plus both spec texts | Direction-aware diff of the bundled Orders API fixtures |
+| `POST /api/contract` | Contract demo: re-diff an edited v1.3.0 | Same diff, against the visitor's YAML |
+| `POST /api/contract/validate` | Contract demo: validate a response body | api-contract-tester's enforcer (`contract_enforcer.py`) |
+| `GET /api/profile?fixes=` | Profiler demo: measure, fix, measure | performance-profiler's `@profile` on an order-report workload |
+| `GET /api/scan`     | Scanner demo: graded scan | vulnerability-scanner engine on a labeled, deliberately vulnerable sample app |
+| `POST /api/scan/snippet` | Scanner demo: pasted code | Same engine and rules |
+| `POST /api/rag`     | Code-RAG demo | Proxied call to the code-rag server (BM25 retrieval, extractive answers) |
+| `GET /api/chaos`, `POST /api/chaos/run`, `WS /ws/chaos` | FaultLine demo | Saved and live FaultLine experiments: CPU pressure, network delay or process kill, with or without a mitigation |
 | `POST /api/cnc/visualize` | G-Code Visualizer | Python modal parser with Matplotlib SVG export |
-| `POST /api/cnc/convert` | DXF to G-Code Converter | ezdxf extraction of planar drawing geometry |
-| `POST /api/cnc/optimize` | G-Code Optimizer | Contour ordering with computed XY rapid travel |
+| `POST /api/cnc/convert` | DXF to G-Code Converter | ezdxf extraction; feed, depth, safe Z; contour-to-line map; cycle time |
+| `POST /api/cnc/optimize` | G-Code Optimizer | Nearest neighbor, X sort and 2-opt; `"all"` compares them; `layout: "random"` |
 | `GET /api/cnc/sample/{name}` | Sample DXF downloads | Bundled millimetre drawings |
+
+Endpoints that do real CPU work are rate limited per client (`backend/ratelimit.py`):
+FaultLine runs 4 per 10 minutes, profiles 20 per minute, and so on. One FaultLine
+experiment runs at a time; other visitors watch it live. The last result for each
+FaultLine scenario is saved to `PORTFOLIO_CACHE_DIR` (default `<server dir>/cache`).
 
 The backend reuses the *actual* engines from the sibling projects rather than
 copying them:
 
-- `performance-profiler/profiler.py`: the `@profile` decorator (real timing).
+- `performance-profiler/profiler.py`: the `@profile` decorator (real CPU,
+  wall and memory measurements) on an order report with three classic
+  slowdowns (N+1 queries, list membership, a scan per day) and their fixes.
+  SQLite runs in-process, so each query also sleeps 0.1 ms to model a database
+  round trip; that is what makes N+1 show up as waiting rather than CPU.
 - `vulnerability-scanner/backend/services/scanner.py`: the project's own
-  `scan_codebase()` engine, called once per repo. Its regex results require
-  human review; the portfolio does not present them as confirmed issues.
-- `contract_diff` implements the OpenAPI version diff directly against the two
-  bundled sample specs. The api-contract-tester project enforces a live
-  endpoint against one spec; comparing two spec versions for breaking changes is
-  a different job, so the demo keeps its own diff.
+  engine, run on `samples/scan_target` (a small shop app with planted flaws and
+  safe look-alikes, labeled in `expected.json`) so the demo reports measured
+  precision and recall, and on snippets visitors paste.
+- `api-contract-tester/backend/services/contract_enforcer.py`: the project's
+  enforcer validates a response body against the contract.
+- `contract_diff` implements the OpenAPI version diff directly. It is
+  direction-aware: the same change can break request writers but not response
+  readers (a new required field) or the reverse (a removed field).
 - `rag` proxies to the code-rag project's own demo server (`coderag.main:app`),
   so the cited answers come from the project's real retrieval pipeline.
+- `chaos` runs FaultLine's `ExperimentRunner` against FaultLine's bundled
+  shop service.
 
 The sibling repositories are expected to live next to this checkout (all under
 the same parent directory). Override the parent path with the
 `PORTFOLIO_SERVER_DIR` environment variable if they live elsewhere.
 
-The three CNC demos are new portfolio implementations of the supplied project
-descriptions; the original CNC source repositories were not available. They run
-entirely in this backend with `ezdxf` and `matplotlib`. New cards are appended after
-the existing five projects; repository counters still count the five sibling
+The three CNC demos run entirely in this backend (`backend/services/cnc.py`)
+with `ezdxf` and `matplotlib`. Repository counters count the five sibling
 repositories, not the eight showcased projects.
 
-The visualizer supports G0/G1, XY G2/G3 with incremental I/J centers, G20/G21,
-and G90/G91. It reports unsupported operations instead of silently skipping them.
+The visualizer supports G0/G1, XY G2/G3 with incremental I/J or R centers,
+G20/G21, G90/G91 and drilling cycles (G81-G89, drawn as holes). Codes that do not
+change the XY path (tool changes, spindle, coolant, offsets) are skipped with an
+`info` note; codes whose motion cannot be previewed (G28, G53, G92) and cutter
+compensation are skipped with a `warning` note. Real programs therefore render
+instead of failing, and every skipped code is listed with its lines.
 DXF conversion accepts planar LINE, LWPOLYLINE (including bulges), ARC, and CIRCLE
 entities in mm or unitless drawings (assumed mm). Curves are tessellated at up to
 2 degrees per chord. ASCII inputs are bounded to 500 KB and 100 entities; converted
 programs and edited G-code are bounded to 2,000 lines and 10,000 preview points.
 
-The optimizer compares nearest-neighbor and X-sorted contour orders, preserving
-each contour's direction and starting vertex. It keeps the original order when
-a heuristic is worse. Reported savings concern XY rapid distance from origin;
-they do not estimate machine time or include Z travel. Generated programs are
+The optimizer compares nearest-neighbor, X-sorted and 2-opt contour orders,
+preserving each contour's direction and starting vertex. 2-opt refines the
+nearest-neighbor tour; because travel is asymmetric (a contour can end away from
+its start), each reversal is scored with prefix sums of forward and backward
+edge costs, O(n^2) per pass. It keeps the original order when a heuristic is
+worse. Reported savings concern XY rapid distance from origin and exclude Z
+travel; the converter's cycle time is an estimate at the programmed feed with
+5,000 mm/min rapids. Generated programs are
 geometry previews with fixed Z5 clearance and Z−1 depth, without machine tooling
 or cutter compensation. Review the program and controller setup before machining.
 Uploaded drawings are read from the request and are not stored by these routes.
@@ -79,9 +100,8 @@ The site itself is served separately (e.g. `python -m http.server 8080`). The
 frontend resolves the API base automatically: same-origin when served by this
 backend, otherwise `http://<host>:8085` for `localhost`/`127.0.0.1`.
 
-If the backend is down, the site keeps its illustrative examples visible and
-marks live demos unavailable. The fixture diff filters still work on the sample
-rows; live results appear when the backend is reachable.
+Demos load their results when they scroll into view. If the backend is down,
+each card says so and keeps its layout; nothing is presented as a live result.
 
 ## Testing
 

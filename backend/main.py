@@ -6,40 +6,58 @@ application port directly.
 
 Endpoints
 ---------
-* ``GET  /api/health``    -- liveness probe.
-* ``GET  /api/stats``     -- filesystem, Python-source, test-function, and Git-history counts.
-* ``GET  /api/contract``  -- compatibility diff of bundled OpenAPI fixtures.
-* ``GET  /api/profile``   -- CPU profile of a bounded benchmark workload.
-* ``GET  /api/scan``      -- heuristic pattern scan of the sibling repos.
-* ``POST /api/chaos/run`` -- start a real FaultLine chaos experiment.
-* ``GET  /api/chaos``     -- last chaos run verdict + SLO evidence.
-* ``WS   /ws/profile``    -- live-streaming profiling metrics.
-* ``WS   /ws/chaos``      -- live-streamed chaos experiment events.
+* ``GET  /api/health``            -- liveness plus which engines are reachable.
+* ``GET  /api/stats``             -- file, Python-source, test and commit counts.
+* ``GET  /api/summary``           -- hero snapshot (cached for 10 minutes).
+* ``GET  /api/contract``          -- v1.2.0 -> v1.3.0 compatibility diff + both specs.
+* ``POST /api/contract``          -- diff an edited v1.3.0 against v1.2.0.
+* ``POST /api/contract/validate`` -- validate a response body (contract tester engine).
+* ``GET  /api/profile``           -- profile the order report with chosen fixes.
+* ``GET  /api/scan``              -- graded scan of the labeled vulnerable sample app.
+* ``POST /api/scan/snippet``      -- scan pasted code.
+* ``POST /api/rag``               -- question to the code-rag server.
+* ``GET  /api/chaos``             -- saved FaultLine result for a scenario + run state.
+* ``POST /api/chaos/run``         -- start a FaultLine experiment (one at a time).
+* ``WS   /ws/chaos``              -- live experiment frames (replay first).
+* ``/api/cnc/*``                  -- the three CNC demos (see ``cnc_api``).
 
-Every data endpoint degrades gracefully: if a real engine or repo is missing
-the endpoint returns an error payload the frontend understands, rather than
-500-ing, so the site keeps working even if the backend can't reach everything.
+Every data endpoint degrades gracefully: if an engine or repo is missing it
+returns an error payload the frontend understands instead of a 500. Endpoints
+that do real CPU work are rate limited per client (:mod:`backend.ratelimit`).
 """
 
 from __future__ import annotations
 
 import logging
 import re
+import threading
+import time
+from typing import Any
 
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi import Depends, FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import PlainTextResponse
 from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel, Field
 
 from . import config
 from .cnc_api import router as cnc_router
-from .services import chaos, contract_diff, profiling, rag, repo_stats, vuln_scan
+from .ratelimit import limit
+from .services import (
+    chaos,
+    contract_diff,
+    contract_validate,
+    profiling,
+    rag,
+    repo_stats,
+    vuln_scan,
+)
 from .services.repo_stats import StatsPayload
 
 logger = logging.getLogger("portfolio-backend")
 
-app = FastAPI(title="Portfolio Demo Backend", version="1.0.0")
-app.include_router(cnc_router)
+app = FastAPI(title="Portfolio Demo Backend", version="2.0.0")
+app.include_router(cnc_router, dependencies=[Depends(limit("cnc", 60, 60))])
 
 # Local static-site development uses a separate origin. Production serves the
 # page and API through one reverse-proxy origin, so it does not need CORS.
@@ -59,7 +77,8 @@ def health() -> dict:
         "engines": {
             "profiler": config.PROFILER_LIB.exists(),
             "scanner": config.SCANNER_ENGINE.exists(),
-            "samples": (config.SAMPLES_DIR / "orders_v1.2.0.yaml").exists(),
+            "contract_tester": config.CONTRACT_ENGINE.exists(),
+            "samples": (config.SAMPLES_DIR / contract_diff.OLD_FILE).exists(),
             "code_rag": _code_rag_up(),
             "faultline": (config.FAULTLINE_PKG / "__init__.py").exists(),
         },
@@ -80,50 +99,151 @@ def _code_rag_up() -> bool:
 
 @app.get("/api/stats")
 def stats() -> StatsPayload:
-    """Return live repository statistics for the About counters."""
+    """Return live repository statistics."""
     try:
         return repo_stats.get_stats()
     except Exception:  # pragma: no cover - defensive
         logger.exception("stats failed")
-        return {"projects_shipped": 0, "repository_files": 0,
-                "python_lines": 0, "commit_count": 0,
-                "test_functions": 0, "repos": []}
+        return {"projects_shipped": 0, "repository_files": 0, "python_lines": 0,
+                "commit_count": 0, "test_functions": 0, "ci_workflows": 0, "repos": []}
+
+
+_SUMMARY_TTL_S = 600.0
+_summary_cache: dict[str, Any] = {}
+_summary_lock = threading.Lock()
+
+
+@app.get("/api/summary")
+def summary() -> dict:
+    """Hero snapshot: live demos, Python lines, test functions, CI workflows.
+
+    Walking every repo and its git history on each page view would cost the
+    shared core real time, and the trees only change on deploy, so the result
+    is cached for 10 minutes.
+    """
+    with _summary_lock:
+        cached = _summary_cache.get("value")
+        if cached and time.monotonic() - _summary_cache["at"] < _SUMMARY_TTL_S:
+            return cached
+        try:
+            s = repo_stats.get_stats()
+        except Exception:  # pragma: no cover - defensive
+            logger.exception("summary stats failed")
+            s = {"projects_shipped": 0, "python_lines": 0, "test_functions": 0,
+                 "ci_workflows": 0}
+        value = {
+            "status": "operational",
+            "live_demos": 8,
+            "projects_shipped": int(s.get("projects_shipped", 0) or 0),
+            "python_lines": int(s.get("python_lines", 0) or 0),
+            "test_functions": int(s.get("test_functions", 0) or 0),
+            "ci_workflows": int(s.get("ci_workflows", 0) or 0),
+        }
+        _summary_cache.update(value=value, at=time.monotonic())
+        return value
+
+
+# ── Contract tester ───────────────────────────────────────────────────────
+
+
+class SpecInput(BaseModel):
+    spec: str = Field(min_length=1, max_length=contract_diff.MAX_SPEC_BYTES)
+
+
+class ValidateInput(BaseModel):
+    body: str = Field(min_length=1, max_length=contract_validate.MAX_BODY_BYTES)
+    path: str = Field(default="/orders/{order_id}", max_length=200)
+    method: str = Field(default="get", pattern="^(?i:get|post|put|patch|delete)$")
+    spec: str | None = Field(default=None, max_length=contract_diff.MAX_SPEC_BYTES)
 
 
 @app.get("/api/contract")
 def contract() -> dict:
-    """Return the compatibility diff for the bundled OpenAPI fixtures."""
+    """Diff the bundled fixtures; include both spec texts for the side-by-side view."""
     try:
-        return contract_diff.diff_specs().to_dict()
+        texts = contract_diff.fixture_texts()
+        return {**contract_diff.diff_specs().to_dict(), "old_spec": texts["old"],
+                "new_spec": texts["new"],
+                "sample_response": contract_validate.SAMPLE_BODY}
     except Exception as exc:  # pragma: no cover - defensive
         logger.exception("contract diff failed")
         return {"error": str(exc), "changes": [], "breaking_count": 0, "status": "ERROR"}
 
 
-@app.get("/api/profile")
-def profile(iterations: int = 5) -> dict:
-    """Profile the demo's bounded benchmark workload."""
+@app.post("/api/contract", dependencies=[Depends(limit("contract", 40, 60))])
+def contract_edited(body: SpecInput) -> dict:
+    """Diff an edited spec against the bundled v1.2.0."""
     try:
-        return profiling.run_benchmark(iterations=max(1, min(iterations, 50)))
+        return contract_diff.diff_specs(body.spec).to_dict()
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+
+@app.post("/api/contract/validate", dependencies=[Depends(limit("contract", 40, 60))])
+def contract_validate_body(body: ValidateInput) -> dict:
+    """Validate a response body against the contract with the tester's engine."""
+    try:
+        return contract_validate.validate(body.body, body.path, body.method.lower(), body.spec)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    except Exception as exc:  # pragma: no cover - engine missing
+        logger.exception("contract validation failed")
+        return {"status": "ERROR", "error": str(exc), "violations": []}
+
+
+# ── Profiler ──────────────────────────────────────────────────────────────
+
+
+@app.get("/api/profile", dependencies=[Depends(limit("profile", 20, 60))])
+def profile(fixes: str = "") -> dict:
+    """Profile the order report with the comma-separated steps fixed."""
+    chosen = [f for f in (part.strip() for part in fixes.split(",")) if f]
+    try:
+        return profiling.run_benchmark(chosen)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
     except Exception as exc:  # pragma: no cover - defensive
         logger.exception("profile failed")
         return {"error": str(exc), "functions": [], "hot_path": "n/a"}
 
 
+# ── Scanner ───────────────────────────────────────────────────────────────
+
+
+class SnippetInput(BaseModel):
+    code: str = Field(min_length=1, max_length=vuln_scan.MAX_SNIPPET_BYTES)
+    language: str = "python"
+
+
 @app.get("/api/scan")
-def scan(max_findings: int = 25) -> dict:
-    """Return heuristic pattern matches from a scan of sibling repos."""
+def scan() -> dict:
+    """Scan the labeled vulnerable sample app and grade the result."""
     try:
-        return vuln_scan.scan_repos(max_findings=max(1, min(max_findings, 200)))
+        return vuln_scan.scan_sample()
     except Exception as exc:  # pragma: no cover - defensive
         logger.exception("scan failed")
-        return {"error": str(exc), "findings": [], "total_findings": 0}
+        return {"error": str(exc), "lines": [], "summary": {}}
 
 
-@app.post("/api/rag")
+@app.post("/api/scan/snippet", dependencies=[Depends(limit("scan", 40, 60))])
+def scan_snippet(body: SnippetInput) -> dict:
+    """Scan pasted code with the scanner's rules."""
+    try:
+        return vuln_scan.scan_snippet(body.code, body.language)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    except Exception as exc:  # pragma: no cover - engine missing
+        logger.exception("snippet scan failed")
+        return {"error": str(exc), "findings": []}
+
+
+# ── CodeRAG ───────────────────────────────────────────────────────────────
+
+
+@app.post("/api/rag", dependencies=[Depends(limit("rag", 30, 60))])
 def rag_ask(body: dict) -> dict:
     """Proxy a question to the code-rag server and return its cited answer."""
-    question = str(body.get("question", "")) if isinstance(body, dict) else ""
+    question = str(body.get("question", ""))[:240] if isinstance(body, dict) else ""
     try:
         return rag.ask(question)
     except Exception as exc:  # pragma: no cover - defensive
@@ -132,76 +252,37 @@ def rag_ask(body: dict) -> dict:
                 "sources": [], "model": "n/a", "latency_ms": 0}
 
 
-@app.post("/api/chaos/run")
-async def chaos_run() -> dict:
-    """Start a real FaultLine experiment (one at a time)."""
+# ── FaultLine ─────────────────────────────────────────────────────────────
+
+
+class ChaosInput(BaseModel):
+    scenario: str = "cpu"
+    mitigation: bool = False
+
+
+@app.post("/api/chaos/run", dependencies=[Depends(limit("chaos", 4, 600))])
+async def chaos_run(body: ChaosInput | None = None) -> dict:
+    """Start a FaultLine experiment (one at a time across all visitors)."""
+    choice = body or ChaosInput()
     try:
-        return await chaos.start_run()
+        return await chaos.start_run(choice.scenario, choice.mitigation)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
     except Exception as exc:  # pragma: no cover - defensive
         logger.exception("chaos run failed to start")
         return {"started": False, "busy": False, "error": str(exc)}
 
 
 @app.get("/api/chaos")
-def chaos_status() -> dict:
-    """Return the last chaos verdict + SLO evidence (empty until first run)."""
+def chaos_status(scenario: str = "cpu", mitigation: bool = False) -> dict:
+    """Saved result for a scenario, plus whether a run is in flight."""
     try:
-        return chaos.status()
+        return chaos.status(scenario, mitigation)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
     except Exception as exc:  # pragma: no cover - defensive
         logger.exception("chaos status failed")
-        return {"engine": False, "busy": False, "last": {}, "error": str(exc)}
-
-
-@app.get("/api/summary")
-def summary() -> dict:
-    """Return a single aggregate payload for the hero status ticker.
-
-    Bundles live repo statistics and heuristic scanner match counts into one
-    request for the hero snapshot. Scanner matches are not confirmed
-    vulnerabilities. Each field degrades to a safe default if its source is
-    unavailable.
-    """
-    stats: StatsPayload = {
-        "projects_shipped": 0,
-        "repository_files": 0,
-        "python_lines": 0,
-        "commit_count": 0,
-        "test_functions": 0,
-        "repos": [],
-    }
-    potential_matches = 0
-    try:
-        stats = repo_stats.get_stats()
-    except Exception:  # pragma: no cover - defensive
-        logger.exception("summary stats failed")
-    try:
-        potential_matches = int(
-            vuln_scan.scan_repos(max_findings=1).get("total_findings", 0)
-        )
-    except Exception:  # pragma: no cover - defensive
-        logger.exception("summary scan failed")
-
-    return {
-        "status": "operational",
-        "projects_shipped": int(stats.get("projects_shipped", 0) or 0),
-        "python_lines": int(stats.get("python_lines", 0) or 0),
-        "test_functions": int(stats.get("test_functions", 0) or 0),
-        "potential_matches": potential_matches,
-    }
-
-
-@app.websocket("/ws/profile")
-async def ws_profile(websocket: WebSocket) -> None:
-    """Stream live profiling metric frames to the connected client."""
-    await websocket.accept()
-    try:
-        async for frame in profiling.stream_metrics(frames=15, interval=0.4):
-            await websocket.send_json(frame)
-    except WebSocketDisconnect:
-        return
-    except Exception:  # pragma: no cover - defensive
-        logger.exception("ws stream failed")
-        return
+        return {"engine": False, "busy": False, "last": None, "error": str(exc)}
 
 
 @app.websocket("/ws/chaos")
@@ -227,7 +308,8 @@ class _PublicStaticFiles(StaticFiles):
     approved web asset is answered with 404 instead of leaking the file.
     """
 
-    ALLOWED_SEGMENTS = frozenset({"index.html", "script.js", "styles.css", "assets"})
+    ALLOWED_SEGMENTS = frozenset({"index.html", "script.js", "styles.css", "assets",
+                                  "robots.txt", "sitemap.xml"})
 
     async def get_response(self, path: str, scope) -> PlainTextResponse:
         # Starlette normalizes with os.path.normpath, so on Windows the
