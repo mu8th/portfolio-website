@@ -97,8 +97,9 @@ def test_contract_diff_endpoints_lines_and_impact() -> None:
 def test_edited_spec_is_rediffed_and_bad_yaml_names_the_line() -> None:
     texts = contract_diff.fixture_texts()
     assert contract_diff.diff_specs(texts["old"]).to_dict()["changes"] == []
-    with pytest.raises(ValueError, match="line 2"):
-        contract_diff.diff_specs("openapi: 3.0.3\npaths: [unclosed\n")
+    # A stray colon: PyYAML marks the offending line itself, in every version.
+    with pytest.raises(ValueError, match="line 3"):
+        contract_diff.diff_specs("openapi: 3.0.3\ninfo:\n  title: a: b\n  version: 1.0\n")
 
 
 def test_response_validation_uses_the_contract_tester_engine() -> None:
