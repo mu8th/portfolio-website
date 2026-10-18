@@ -153,8 +153,13 @@ def test_sample_scan_is_graded_against_labels() -> None:
     result = vuln_scan.scan_sample()
     summary = result["summary"]
     labeled = json.loads((vuln_scan.SAMPLE_DIR / "expected.json").read_text())["lines"]
-    graded = [r for r in result["lines"] if r["verdict"] != "false_positive"]
-    assert len(graded) == len(labeled)
+    # Every labeled line gets a verdict, whichever scanner version runs.
+    assert sum(1 for r in result["lines"] if r["labeled"]) == len(labeled)
+    flagged_safe = sum(
+        1 for r in result["lines"] if r["labeled"] and r["verdict"] == "false_positive"
+    )
+    safe_labels = sum(1 for x in labeled if x.get("safe"))
+    assert summary["correctly_ignored"] + flagged_safe == safe_labels
     assert summary["true_positive"] + summary["missed"] == sum(1 for x in labeled if x.get("flaw"))
     assert summary["recall"] >= 0.8
     # The cross-line flaw is a documented limit of line rules.

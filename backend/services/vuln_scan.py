@@ -148,14 +148,14 @@ def scan_sample() -> dict[str, Any]:
         rows.append({
             "file": label["file"], "line": label["line"], "code": label["code"],
             "expected": flaw, "why": label.get("why", ""), "finding": found,
-            "verdict": verdict,
+            "verdict": verdict, "labeled": True,
         })
     for key, found in by_line.items():
         if key not in seen:
             rows.append({
                 "file": found["file"], "line": found["line"], "code": found["code"],
                 "expected": None, "why": "Not labeled as a flaw.", "finding": found,
-                "verdict": "false_positive",
+                "verdict": "false_positive", "labeled": False,
             })
     order = {name: i for i, name in enumerate(["shop/db.py", "shop/config.py", "static/app.js",
                                                 "requirements.txt"])}
