@@ -77,9 +77,15 @@ starts everything, and smoke-tests it. When it finishes, open
 
 ## Notes
 
-- The RAG demo runs in simulation mode (`RAG_SIMULATE=1`) and indexes all five
-  repos (`RAG_ROOT=/opt/portfolio`). No model is ever downloaded or run on the
-  server.
-- The WebSocket profile stream works through Caddy with no extra config.
+- The RAG demo runs in simulation mode (`RAG_SIMULATE=1`) and indexes only the
+  code-rag repository without its tests (`RAG_ROOT=/opt/portfolio/code-rag`,
+  `RAG_SKIP_TESTS=1`), so questions about it cite its implementation. No model
+  is ever downloaded or run on the server.
+- The FaultLine WebSocket stream works through Caddy with no extra config. The
+  last run of each FaultLine scenario is saved in `/opt/portfolio/cache`.
+- Caddy compresses responses and sets `nosniff`, `Referrer-Policy` and
+  `X-Frame-Options` headers.
 - Free ARM capacity is occasionally reclaimed by Oracle if the instance sits
   idle for a very long time; booting it again from the console restores it.
+  `.github/workflows/uptime.yml` checks the site every 30 minutes so a failure
+  shows up as a failed workflow (GitHub emails the repository owner).

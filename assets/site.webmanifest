@@ -1,11 +1,11 @@
 {
-  "name": "Muath Alsawaier | Software Developer",
+  "name": "Muath Alsawaier | Backend systems and developer tooling",
   "short_name": "Muath",
-  "description": "Backend systems, API contract enforcement, and real-time observability, shipped and tested.",
+  "description": "Eight backend and developer-tooling projects, each with a live demo.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#020202",
-  "theme_color": "#8b5cf6",
+  "background_color": "#0e1117",
+  "theme_color": "#0e1117",
   "icons": [
     {
       "src": "assets/favicon-192x192.png",

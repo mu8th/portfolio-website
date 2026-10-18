@@ -28,8 +28,9 @@ logger = logging.getLogger("portfolio-backend.rag")
 #: Default question used when the frontend does not supply one.
 DEFAULT_QUESTION = "How does the retrieval index rank code chunks?"
 
-#: Hard cap so a long answer can't bloat the payload.
+#: Hard caps so a long answer or passage can't bloat the payload.
 _MAX_ANSWER_CHARS = 1400
+_MAX_SOURCE_CHARS = 4000
 
 
 def ask(question: str = DEFAULT_QUESTION) -> dict[str, Any]:
@@ -81,6 +82,8 @@ def ask(question: str = DEFAULT_QUESTION) -> dict[str, Any]:
             "end_line": s.get("end_line", 0),
             "score": round(float(s.get("score", 0.0)), 3),
             "snippet": str(s.get("snippet", ""))[:200],
+            # The full passage lets a citation expand into the code it quotes.
+            "text": str(s.get("text", ""))[:_MAX_SOURCE_CHARS],
         }
         for s in data.get("sources", [])[:4]
     ]
@@ -96,4 +99,7 @@ def ask(question: str = DEFAULT_QUESTION) -> dict[str, Any]:
         "model": data.get("model", "n/a"),
         "engine": data.get("engine", ""),
         "latency_ms": round(float(data.get("latency_ms", 0.0)), 0),
+        # Older code-rag servers predate the relevance floor; treat them as confident.
+        "confident": bool(data.get("confident", True)),
+        "best_score": round(float(data.get("best_score", 0.0) or 0.0), 3),
     }
