@@ -140,7 +140,8 @@ Wants=network-online.target
 [Service]
 WorkingDirectory=/opt/portfolio/code-rag
 Environment=RAG_SIMULATE=1
-Environment=RAG_ROOT=/opt/portfolio
+Environment=RAG_ROOT=/opt/portfolio/code-rag
+Environment=RAG_SKIP_TESTS=1
 ExecStart=/opt/portfolio/venvs/coderag/bin/python -m uvicorn coderag.main:app --host 127.0.0.1 --port 8090
 Restart=always
 RestartSec=3
@@ -152,6 +153,14 @@ UNIT
 echo "==> Writing Caddyfile (muath.online -> backend on 127.0.0.1:8085, automatic HTTPS)"
 cat > /etc/caddy/Caddyfile <<'CADDY'
 muath.online, www.muath.online {
+	encode zstd gzip
+	header {
+		X-Content-Type-Options nosniff
+		Referrer-Policy strict-origin-when-cross-origin
+		X-Frame-Options DENY
+	}
+	@versioned path /assets/* /styles.css /script.js
+	header @versioned Cache-Control "public, max-age=86400"
 	reverse_proxy 127.0.0.1:8085
 }
 CADDY
@@ -196,8 +205,13 @@ curl -fsS --max-time 30 -H 'Content-Type: application/json' \
 curl -fsS --max-time 30 -H 'Content-Type: application/json' \
   -d '{"sample":"mounting-plate"}' http://127.0.0.1:8085/api/cnc/convert >/dev/null
 curl -fsS --max-time 30 -H 'Content-Type: application/json' \
-  -d '{"sample":"scattered","algorithm":"nearest"}' \
+  -d '{"sample":"scattered","algorithm":"all"}' \
   http://127.0.0.1:8085/api/cnc/optimize >/dev/null
+
+echo "==> Smoke test the contract, scanner and profiler demos"
+curl -fsS --max-time 30 http://127.0.0.1:8085/api/contract >/dev/null
+curl -fsS --max-time 30 http://127.0.0.1:8085/api/scan | grep -q '"recall"'
+curl -fsS --max-time 60 http://127.0.0.1:8085/api/profile | grep -q '"hot_path"'
 
 echo ""
 echo "============================================================"

@@ -4,9 +4,10 @@ Counts files and Python source lines from sibling repository trees, counts
 pytest-style test function definitions, and totals Git commit history. The
 summary is computed from repository contents rather than hand-entered estimates.
 
-Counts are computed on demand (no cache) so they stay honest as the repos
-change. ``git`` is shelled out for commit counts; if a repo or git is missing
-the field degrades to ``0`` rather than raising.
+Counts are computed from the checkouts on disk; the API caches the summary for
+a few minutes because the trees only change on deploy. ``git`` is shelled out
+for commit counts; if a repo or git is missing the field degrades to ``0``
+rather than raising.
 """
 
 from __future__ import annotations
@@ -42,6 +43,7 @@ class StatsPayload(TypedDict):
     python_lines: int
     commit_count: int
     test_functions: int
+    ci_workflows: int
     repos: list[RepoStats]
 
 
@@ -149,6 +151,11 @@ def get_stats() -> StatsPayload:
 
     # The site's own backend suite counts toward the total too.
     tot_tests += _count_test_functions(config.BACKEND_DIR)
+    # Repositories (this site included) whose CI workflow runs on every push.
+    ci = sum(
+        1 for d in [config.SITE_DIR, *(config.SERVER_DIR / n for n in config.REPO_NAMES)]
+        if (d / ".github" / "workflows" / "ci.yml").is_file()
+    )
 
     return {
         "projects_shipped": len(config.REPO_NAMES),
@@ -156,5 +163,6 @@ def get_stats() -> StatsPayload:
         "python_lines": tot_loc,
         "commit_count": tot_commits,
         "test_functions": tot_tests,
+        "ci_workflows": ci,
         "repos": repos,
     }

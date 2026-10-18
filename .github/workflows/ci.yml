@@ -12,12 +12,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # The demo backend reuses the sibling projects' real code (performance-profiler's
-      # profiler.py and vulnerability-scanner's scanner engine), so the tests need those
-      # repos available. They are checked out under vendor/ and pointed to via
-      # PORTFOLIO_SERVER_DIR, mirroring the local sibling-repo layout.
-      # NOTE: both sibling repos are public and were renamed on GitHub
-      # (perf-profiler, vuln-scanner); the default GITHUB_TOKEN covers the checkout.
+      # The demo backend reuses the sibling projects' real code (the profiler
+      # decorator, the scanner engine, the contract tester's enforcer and the
+      # FaultLine package), so the tests need those repos available. They are
+      # checked out under vendor/ and pointed to via PORTFOLIO_SERVER_DIR,
+      # mirroring the server's sibling-repo layout. All are public; two were
+      # renamed on GitHub (perf-profiler, vuln-scanner).
       - name: Check out performance-profiler (engine source)
         uses: actions/checkout@v4
         with:
@@ -29,6 +29,18 @@ jobs:
         with:
           repository: mu8th/vuln-scanner
           path: vendor/vulnerability-scanner
+
+      - name: Check out api-contract-tester (enforcer source)
+        uses: actions/checkout@v4
+        with:
+          repository: mu8th/api-contract-tester
+          path: vendor/api-contract-tester
+
+      - name: Check out faultline (experiment engine)
+        uses: actions/checkout@v4
+        with:
+          repository: mu8th/faultline
+          path: vendor/faultline
 
       - uses: actions/setup-python@v5
         with:
@@ -46,6 +58,7 @@ jobs:
       - name: Run tests
         env:
           PORTFOLIO_SERVER_DIR: ${{ github.workspace }}/vendor
+          PORTFOLIO_CACHE_DIR: ${{ runner.temp }}/portfolio-cache
         # Scoped to backend/tests so the checked-out engine repos' own test
         # suites (under vendor/) are never collected.
         run: pytest -q backend/tests
