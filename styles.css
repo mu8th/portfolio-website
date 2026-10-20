@@ -11,7 +11,8 @@
   --line-strong: #3a4356;
   --text: #e7eaf0;
   --muted: #a3acbb;
-  --faint: #7a8496;
+  --faint: #838da0; /* 4.5:1 or better on every surface below */
+  --line-number: #626b7e;
   --accent: #a78bfa;
   --accent-strong: #8b5cf6;
   --data: #67e8f9;
@@ -23,6 +24,9 @@
   --mono: 'Geist Mono', ui-monospace, 'SF Mono', Consolas, monospace;
   --radius: 10px;
   --gutter: 1rem;
+  --content: 72rem;
+  /* Native scrollbars, select menus and file pickers follow the dark theme. */
+  color-scheme: dark;
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -31,8 +35,15 @@
 html { scroll-behavior: smooth; scroll-padding-top: 4.5rem; }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 
+/* A static glow behind the hero: violet behind the headline, a trace of cyan
+   behind the live results. Anchored to the centered column (50% ± offset) so it
+   sits behind the same content at every width, and gone by the fold. */
 body {
-  background: var(--bg);
+  background:
+    radial-gradient(46rem 30rem at calc(50% - 18rem) 2rem, rgba(139, 92, 246, 0.16), transparent 72%),
+    radial-gradient(36rem 26rem at calc(50% + 22rem) 8rem, rgba(103, 232, 249, 0.06), transparent 72%),
+    var(--bg);
+  background-repeat: no-repeat;
   color: var(--text);
   font: 400 1rem/1.6 var(--font);
   -webkit-font-smoothing: antialiased;
@@ -60,7 +71,7 @@ button { cursor: pointer; }
 }
 .skip-link:focus { transform: none; }
 
-.wrap { width: 100%; max-width: 72rem; margin: 0 auto; padding: 0 var(--gutter); }
+.wrap { width: 100%; max-width: var(--content); margin: 0 auto; padding: 0 var(--gutter); }
 @media (min-width: 640px) { :root { --gutter: 1.5rem; } }
 @media (min-width: 1024px) { :root { --gutter: 2rem; } }
 
@@ -69,7 +80,8 @@ button { cursor: pointer; }
 .site-header {
   position: sticky; top: 0; z-index: 50;
   display: flex; align-items: center; justify-content: space-between; gap: 1rem;
-  padding: 0.75rem var(--gutter);
+  /* Full-width bar, but the name and links line up with the content column. */
+  padding: 0.75rem max(var(--gutter), calc((100% - var(--content)) / 2 + var(--gutter)));
   background: rgba(14, 17, 23, 0.86);
   backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--line);
@@ -293,7 +305,7 @@ section.experience, section.projects, section.skills, section.contact { padding:
 }
 .code-view.tall { max-height: 26rem; }
 .code-line { display: grid; grid-template-columns: 3rem minmax(0, 1fr); white-space: pre; }
-.code-line .ln { color: #4b5466; text-align: right; padding-right: 0.8rem; user-select: none; }
+.code-line .ln { color: var(--line-number); text-align: right; padding-right: 0.8rem; user-select: none; }
 .code-line .tx { padding-right: 0.75rem; }
 .code-line.is-hl { background: rgba(103, 232, 249, 0.12); }
 .code-line.is-hl .ln { color: var(--data); }
@@ -491,7 +503,7 @@ mark.hit { background: rgba(248, 113, 113, 0.28); color: inherit; border-radius:
 }
 .editor { display: grid; grid-template-columns: 2.6rem minmax(0, 1fr); height: 22rem; border: 1px solid var(--line-strong); border-radius: 8px; background: #0b0e14; overflow: hidden; }
 .editor:focus-within { border-color: var(--accent); }
-.gutter { overflow: hidden; padding: 0.6rem 0; font: 0.8rem/1.55 var(--mono); color: #4b5466; text-align: right; }
+.gutter { overflow: hidden; padding: 0.6rem 0; font: 0.8rem/1.55 var(--mono); color: var(--line-number); text-align: right; }
 .gutter div { padding-right: 0.5rem; }
 .gutter div.is-current { color: var(--bg); background: var(--data); }
 .editor textarea { width: 100%; height: 100%; resize: none; border: 0; padding: 0.6rem 0.6rem; background: transparent; font: 0.8rem/1.55 var(--mono); white-space: pre; overflow: auto; }
